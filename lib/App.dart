@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:lsdip_driver/screens/Start.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -12,6 +13,9 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Container(child: Center(child: Text("Placeholder"))));
+    return Scaffold(
+        body: Container(
+            child: Center(child: Start() //!todo to add login screen & auth
+                )));
   }
 }
