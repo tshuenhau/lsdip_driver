@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:lsdip_driver/screens/Homescreen.dart';
 
 class Start extends StatefulWidget {
@@ -22,7 +20,9 @@ class _StartState extends State<Start> {
         // If the form is valid, display a snackbar. In the real world,
         // you'd often call a server or save the information in a database.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Processing Data')),
+          const SnackBar(
+              content: Text('Processing Data...'),
+              duration: const Duration(milliseconds: 900)),
         );
 
         Future.delayed(const Duration(milliseconds: 1000), () {
