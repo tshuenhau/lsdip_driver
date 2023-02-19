@@ -5,7 +5,7 @@ import 'package:lsdip_driver/widgets/layout/CustomBottomNavigationBar.dart';
 import 'package:lsdip_driver/widgets/layout/CustomPageView.dart';
 
 class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+  Homescreen({super.key});
 
   @override
   State<Homescreen> createState() => _HomescreenState();
@@ -21,6 +21,10 @@ class _HomescreenState extends State<Homescreen> {
     });
   }
 
+  // void getLocation() async {
+  //   _locationData = await location.getLocation();
+  // }
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +37,8 @@ class _HomescreenState extends State<Homescreen> {
     super.dispose();
   }
 
-  final List<Widget> _navScreens = [
-    const OrdersScreen(),
-    const VehicleScreen()
-  ];
+  final List<Widget> _navScreens = [OrdersScreen(), const VehicleScreen()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
