@@ -3,9 +3,18 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:location/location.dart';
 
-class OrdersScreen extends StatelessWidget {
+//!https://stackoverflow.com/questions/65516604/flutter-stream-location-and-user-data-to-firestore
+class OrdersScreen extends StatefulWidget {
   OrdersScreen({super.key});
+
+  @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
   final Location location = Location();
+  late double lat;
+  late double long;
 
   Future<LocationData> getLocation() async {
     return await location.getLocation();
