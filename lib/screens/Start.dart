@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lsdip_driver/screens/Homescreen.dart';
 
+//TODO: add get state management https://blog.logrocket.com/ultimate-guide-getx-state-management-flutter/
 class Start extends StatefulWidget {
-  Start({super.key});
+  Start({required this.numberPlate, super.key});
+
+  String numberPlate;
 
   @override
   State<Start> createState() => _StartState();
@@ -14,6 +17,7 @@ class _StartState extends State<Start> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.numberPlate);
     void doSubmit() {
       // Validate returns true if the form is valid, or false otherwise.
       if (_formKey.currentState!.validate()) {
@@ -34,41 +38,43 @@ class _StartState extends State<Start> {
       }
     }
 
-    return Form(
-      key: _formKey,
-      child: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Please enter the current odometer reading:"),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 65 / 100,
-            child: TextFormField(
-              keyboardType: TextInputType.number,
-              // The validator receives the text that the user has entered.
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid reading';
-                }
-                return null;
-                // doSubmit();
-              },
-              onFieldSubmitted: (e) {
-                doSubmit();
-              },
+    return Scaffold(
+      body: Form(
+        key: _formKey,
+        child: Center(
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Please enter the current odometer reading:"),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 65 / 100,
+              child: TextFormField(
+                keyboardType: TextInputType.number,
+                // The validator receives the text that the user has entered.
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a valid reading';
+                  }
+                  return null;
+                  // doSubmit();
+                },
+                onFieldSubmitted: (e) {
+                  doSubmit();
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                doSubmit();
-              },
-              child: const Text('Submit'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  doSubmit();
+                },
+                child: const Text('Submit'),
+              ),
             ),
-          ),
-        ],
-      )),
+          ],
+        )),
+      ),
     );
   }
 }

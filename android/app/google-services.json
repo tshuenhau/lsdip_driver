@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772753228418",
+    "project_id": "lsdiptest",
+    "storage_bucket": "lsdiptest.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772753228418:android:d8f5f3a4e22f0aee65ea9b",
+        "android_client_info": {
+          "package_name": "com.example.lsdip_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772753228418-vmahf3kvd34ilothphku80t1it3prj9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQD1d_VnyJqOot3LoHcsj4-tx7ZeoLc4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772753228418-vmahf3kvd34ilothphku80t1it3prj9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

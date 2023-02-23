@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:lsdip_driver/App.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:lsdip_driver/firebase_options.dart';
 
 //TODO: https://pub.dev/packages/location
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
