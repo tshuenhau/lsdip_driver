@@ -5,33 +5,28 @@ import 'package:location/location.dart';
 
 //!https://stackoverflow.com/questions/65516604/flutter-stream-location-and-user-data-to-firestore
 class OrdersScreen extends StatefulWidget {
-  OrdersScreen({super.key});
-
+  OrdersScreen({required this.lat, required this.long, super.key});
+  double lat;
+  double long;
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  final Location location = Location();
-  late double lat;
-  late double long;
+  // final Location location = Location();
 
-  Future<LocationData> getLocation() async {
-    return await location.getLocation();
-  }
+  // Future<LocationData> getLocation() async {
+  //   return await location.getLocation();
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: FutureBuilder(
-            future: getLocation(),
-            builder:
-                (BuildContext context, AsyncSnapshot<LocationData> snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data.toString());
-              } else {
-                return Container();
-              }
-            }));
+        child: Container(
+            child: Text("lat: " +
+                widget.lat.toString() +
+                ", " +
+                "long: " +
+                widget.long.toString())));
   }
 }

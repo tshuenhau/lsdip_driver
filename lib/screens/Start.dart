@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lsdip_driver/screens/Homescreen.dart';
 
+//TODO: Get the mileage from firebase
 //TODO: add get state management https://blog.logrocket.com/ultimate-guide-getx-state-management-flutter/
 class Start extends StatefulWidget {
-  Start({required this.numberPlate, super.key});
+  Start({required this.vehicleId, super.key});
 
-  String numberPlate;
+  String vehicleId;
 
   @override
   State<Start> createState() => _StartState();
@@ -17,7 +18,7 @@ class _StartState extends State<Start> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.numberPlate);
+    print(widget.vehicleId);
     void doSubmit() {
       // Validate returns true if the form is valid, or false otherwise.
       if (_formKey.currentState!.validate()) {
@@ -28,12 +29,14 @@ class _StartState extends State<Start> {
               content: Text('Processing Data...'),
               duration: const Duration(milliseconds: 900)),
         );
-
         Future.delayed(const Duration(milliseconds: 1000), () {
           //TODO: Replace with creating firebase doc and saving it
 // Here you can write your code
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Homescreen()));
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      Homescreen(vehicleId: widget.vehicleId)));
         });
       }
     }

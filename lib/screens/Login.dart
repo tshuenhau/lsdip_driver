@@ -31,6 +31,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    // print(dropdownValue);
     return Container(
         child: Center(
             child: Column(
@@ -53,7 +54,7 @@ class _LoginState extends State<Login> {
                     querySnapshot.docs;
 
                 if (setDefaultValue) {
-                  dropdownValue = listQueryDocumentSnapshot[0]['numberPlate'];
+                  dropdownValue = listQueryDocumentSnapshot[0].id;
                 }
 
                 return DropdownButton<String>(
@@ -75,7 +76,7 @@ class _LoginState extends State<Login> {
                   items: listQueryDocumentSnapshot
                       .map<DropdownMenuItem<String>>((document) {
                     return DropdownMenuItem<String>(
-                      value: document['numberPlate'],
+                      value: document.id,
                       child: Text(document['numberPlate']),
                     );
                   }).toList(),
@@ -94,7 +95,7 @@ class _LoginState extends State<Login> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => Start(
-                            numberPlate: dropdownValue,
+                            vehicleId: dropdownValue,
                           )));
             },
             child: Text("Continue"))
