@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:lsdip_driver/screens/OrdersScreen.dart';
@@ -14,6 +15,8 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
   final Location location = Location();
   late double lat = 0;
   late double long = 0;
@@ -44,7 +47,10 @@ class _HomescreenState extends State<Homescreen> {
           lat = event.latitude!;
           long = event.longitude!;
           count += 1;
-          //TODO: upload lat long to firestore
+
+          var ref = db.collection("vehicles").doc(widget.vehicleId);
+          // print(vehicleRef);
+          ref.update({"location": GeoPoint(lat, long)});
         });
       }
       print(lat.toString() + "   " + long.toString());

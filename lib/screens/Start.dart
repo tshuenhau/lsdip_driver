@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lsdip_driver/screens/Homescreen.dart';
 
@@ -13,8 +14,15 @@ class Start extends StatefulWidget {
 }
 
 class _StartState extends State<Start> {
-  late int value;
+  int? value;
   final _formKey = GlobalKey<FormState>();
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +32,7 @@ class _StartState extends State<Start> {
       if (_formKey.currentState!.validate()) {
         // If the form is valid, display a snackbar. In the real world,
         // you'd often call a server or save the information in a database.
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Processing Data...'),
@@ -54,6 +63,13 @@ class _StartState extends State<Start> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 // The validator receives the text that the user has entered.
+                onChanged: (val) {
+                  if (val.length > 0) {
+                    setState(() {
+                      value = int.parse(val);
+                    });
+                  }
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a valid reading';
@@ -61,7 +77,9 @@ class _StartState extends State<Start> {
                   return null;
                   // doSubmit();
                 },
-                onFieldSubmitted: (e) {
+                onFieldSubmitted: (e) async {
+                  print("E" + e.toString());
+
                   doSubmit();
                 },
               ),
@@ -69,7 +87,11 @@ class _StartState extends State<Start> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  print("value" + value.toString());
+                  var ref = db.collection("vehicles").doc(widget.vehicleId);
+                  // print(vehicleRef);
+                  await ref.update({"mileage": value});
                   doSubmit();
                 },
                 child: const Text('Submit'),
