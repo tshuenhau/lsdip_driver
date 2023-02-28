@@ -74,6 +74,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
               children: [
                 Text("numberPlate: " + data["numberPlate"] ?? ''),
                 // Text("status: " + data["vehicleStatus"] ?? ''),
+
+                Text("starting mileage: " + data["mileage"].toString() ?? ''),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 50 / 100,
                   // height: MediaQuery.of(context).size.height * 5 / 100,
@@ -111,7 +113,6 @@ class _VehicleScreenState extends State<VehicleScreen> {
                         ref.update({"vehicleStatus": state.value});
                       }),
                 ),
-                Text("mileage: " + data["mileage"].toString() ?? ''),
                 // ElevatedButton(
                 //     onPressed: () async {
                 //       var ref = db.collection("vehicles").doc(widget.vehicleId);

@@ -66,6 +66,7 @@ class _HomescreenState extends State<Homescreen> {
     ];
 
     return Scaffold(
+      appBar: AppBar(title: Text("Driver")),
       body: CustomPageView(
         navScreens: _navScreens,
         pageController: _pageController,

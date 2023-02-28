@@ -1,5 +1,4 @@
-//TODO: https://pub.dev/packages/flutter_secure_storage
-// TODO: https://systemweakness.com/how-to-store-login-credentials-the-right-way-in-flutter-857ba6e7e96d
+//TODO: Interim just enter the vehicle number plate
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +6,14 @@ import 'package:lsdip_driver/screens/Start.dart';
 
 // ...
 
-class Login extends StatefulWidget {
-  Login({super.key});
+class SelectVehicle extends StatefulWidget {
+  SelectVehicle({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<SelectVehicle> createState() => _SelectVehicleState();
 }
 
-class _LoginState extends State<Login> {
+class _SelectVehicleState extends State<SelectVehicle> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   CollectionReference vehiclesReference =
       FirebaseFirestore.instance.collection('vehicles');

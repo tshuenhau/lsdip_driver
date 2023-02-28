@@ -61,6 +61,7 @@ class _StartState extends State<Start> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 65 / 100,
               child: TextFormField(
+                textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 // The validator receives the text that the user has entered.
                 onChanged: (val) {
