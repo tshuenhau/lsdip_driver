@@ -22,6 +22,8 @@ class _HomescreenState extends State<Homescreen> {
   late double long = 0;
   late int count = 0;
 
+  List<GeoPoint> points = [];
+
   late PageController _pageController;
   int _selectedIndex = 0;
 
@@ -47,13 +49,18 @@ class _HomescreenState extends State<Homescreen> {
           lat = event.latitude!;
           long = event.longitude!;
           count += 1;
-
+          GeoPoint currPoint = GeoPoint(lat, long);
+          points.add(currPoint);
           var ref = db.collection("vehicles").doc(widget.vehicleId);
           // print(vehicleRef);
-          ref.update({"location": GeoPoint(lat, long)});
+          ref.update({"location": currPoint});
         });
       }
       print(lat.toString() + "   " + long.toString());
+      for (GeoPoint point in points) {
+        print(point.latitude.toString() + ", " + point.longitude.toString());
+      }
+      // print(points.toString());
       print("count" + count.toString());
     });
   }
