@@ -41,6 +41,7 @@ dependencies:
   cloud_firestore: ^4.4.3
   awesome_select: ^6.0.0
   auto_size_text: ^3.0.0
+  latlong2: ^0.8.1
 
 dev_dependencies:
   flutter_test:
