@@ -3,6 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lsdip_driver/screens/Homescreen.dart';
 import 'package:lsdip_driver/screens/Start.dart';
 
 // ...
@@ -32,6 +33,26 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    void doSubmit() {
+      // Validate returns true if the form is valid, or false otherwise.
+      // If the form is valid, display a snackbar. In the real world,
+      // you'd often call a server or save the information in a database.
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Processing Data...'),
+            duration: const Duration(milliseconds: 900)),
+      );
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        //TODO: Replace with creating firebase doc and saving it
+// Here you can write your code
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Homescreen(vehicleId: dropdownValue)));
+      });
+    }
+
     // print(dropdownValue);
     return Container(
         child: Center(
@@ -93,12 +114,11 @@ class _LoginState extends State<Login> {
         ElevatedButton(
             onPressed: () async {
               var ref = db.collection("vehicles").doc(dropdownValue);
-
               ref.update({"vehicleStatus": "Active"});
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => Start(
+                      builder: (context) => Homescreen(
                             vehicleId: dropdownValue,
                           )));
             },
