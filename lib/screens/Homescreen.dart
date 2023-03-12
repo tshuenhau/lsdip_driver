@@ -21,6 +21,9 @@ class _HomescreenState extends State<Homescreen> {
   final Location location = Location();
   late double lat = 0;
   late double long = 0;
+  late GeoPoint prevLocation;
+  late GeoPoint currLocation;
+
   late int count = 0;
   double totalDistance = 0;
 
@@ -50,31 +53,64 @@ class _HomescreenState extends State<Homescreen> {
     super.dispose();
   }
 
+  void initializeLocation() async {
+    LocationData locationData = await location.getLocation();
+    prevLocation = GeoPoint(locationData.latitude!, locationData.longitude!);
+    currLocation = GeoPoint(locationData.latitude!, locationData.longitude!);
+  }
+
   @override
   initState() {
     super.initState();
     _pageController = PageController();
-
+    location.changeSettings(
+        accuracy: LocationAccuracy.high, interval: 3000, distanceFilter: 5);
+    initializeLocation();
     location.onLocationChanged.listen((event) {
       if (mounted) {
         setState(() {
           lat = event.latitude!;
           long = event.longitude!;
-          count += 1;
-          GeoPoint currPoint = GeoPoint(lat, long);
-          if (points.isEmpty) {
-            points.add(currPoint);
-          } else if (points.isNotEmpty && points.last != currPoint) {
-            points.add(currPoint);
+          prevLocation = currLocation;
+          currLocation = GeoPoint(lat, long);
+
+          if (currLocation != prevLocation) {
+            double totalDistance = calculateDistance(
+                prevLocation.latitude,
+                prevLocation.longitude,
+                currLocation.latitude,
+                currLocation.longitude);
+            print(totalDistance);
+            var ref = db.collection("vehicles").doc(widget.vehicleId);
+            const source = Source.cache;
+            ref.get(const GetOptions(source: source)).then(
+              (res) {
+                ref.update({
+                  "location": currLocation,
+                  "mileage": totalDistance + res.get("mileage")
+                });
+
+                print(res.get("mileage").toString());
+              },
+              onError: (e) => print("Error completing: $e"),
+            );
           }
-          var ref = db.collection("vehicles").doc(widget.vehicleId);
-          ref.update({"location": currPoint, "mileage": totalDistance});
+
+          count += 1;
+          // GeoPoint currPoint = GeoPoint(lat, long);
+          // if (points.isEmpty) {
+          //   points.add(currPoint);
+          // } else if (points.isNotEmpty && points.last != currPoint) {
+          //   points.add(currPoint);
+          // }
+          // var ref = db.collection("vehicles").doc(widget.vehicleId);
+          // ref.update({"location": currPoint, "mileage": totalDistance});
         });
       }
-      print(lat.toString() + "   " + long.toString());
-      for (GeoPoint point in points) {
-        print(point.latitude.toString() + ", " + point.longitude.toString());
-      }
+      // print(lat.toString() + "   " + long.toString());
+      // for (GeoPoint point in points) {
+      //   print(point.latitude.toString() + ", " + point.longitude.toString());
+      // }
       // print(points.toString());
       print("count" + count.toString());
     });
