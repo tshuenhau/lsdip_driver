@@ -54,6 +54,7 @@ class _HomescreenState extends State<Homescreen> {
   initState() {
     super.initState();
     _pageController = PageController();
+
     location.onLocationChanged.listen((event) {
       if (mounted) {
         setState(() {
@@ -61,10 +62,13 @@ class _HomescreenState extends State<Homescreen> {
           long = event.longitude!;
           count += 1;
           GeoPoint currPoint = GeoPoint(lat, long);
-          points.add(currPoint);
+          if (points.isEmpty) {
+            points.add(currPoint);
+          } else if (points.isNotEmpty && points.last != currPoint) {
+            points.add(currPoint);
+          }
           var ref = db.collection("vehicles").doc(widget.vehicleId);
-          // print(vehicleRef);
-          ref.update({"location": currPoint});
+          ref.update({"location": currPoint, "mileage": totalDistance});
         });
       }
       print(lat.toString() + "   " + long.toString());
