@@ -60,30 +60,21 @@ class _HomescreenState extends State<Homescreen> {
     super.dispose();
   }
 
-  void checkLocationPermanentlyDisabled() async {}
-
   void initializeLocation() async {
-    // _serviceEnabled = await location.serviceEnabled();
-    // if (!_serviceEnabled) {
-    //   _serviceEnabled = await location.requestService();
-    //   if (!_serviceEnabled) {
-    //     return;
-    //   }
-    // }
-
-    // _permissionGranted = await location.hasPermission();
-    // if (_permissionGranted == PermissionStatus.denied) {
-    //   _permissionGranted = await location.requestPermission();
-    //   if (_permissionGranted != PermissionStatus.granted) {
-    //     return;
-    //   }
-    // }
-    if (await Permission.location.isPermanentlyDenied) {
+    if (await Permission.location.isDenied) {
+      print("denied");
       // The user opted to never again see the permission request dialog for this
       // app. The only way to change the permission's status now is to let the
       // user manually enable it in the system settings.
+      await openAppSettings(); //TODO: Open modal to tell them they need to grant permission
+    } else if (await Permission.location.isPermanentlyDenied) {
+      // The user opted to never again see the permission request dialog for this
+      // app. The only way to change the permission's status now is to let the
+      print("permanently denied");
+      // user manually enable it in the system settings.
       await openAppSettings();
-    } else if (!await Permission.location.request().isGranted) {
+    }
+    if (!await Permission.location.isGranted) {
       return;
     }
     location.changeSettings(
@@ -98,7 +89,6 @@ class _HomescreenState extends State<Homescreen> {
   initState() {
     super.initState();
     _pageController = PageController();
-    checkLocationPermanentlyDisabled();
     initializeLocation();
 
     location.onLocationChanged.listen((event) {
@@ -116,14 +106,14 @@ class _HomescreenState extends State<Homescreen> {
             final double km = distance(
                 LatLng(prevLocation.latitude, prevLocation.longitude),
                 LatLng(currLocation.latitude, currLocation.longitude));
-            print("latlong total distance " + km.toString());
+            // print("latlong total distance " + km.toString());
 
             double totalDistance = calculateDistance(
                 prevLocation.latitude,
                 prevLocation.longitude,
                 currLocation.latitude,
                 currLocation.longitude);
-            print("total distance " + totalDistance.toString());
+            // print("total distance " + totalDistance.toString());
             var ref = db.collection("vehicles").doc(widget.vehicleId);
             const source = Source.cache;
             ref.get(const GetOptions(source: source)).then(
@@ -158,7 +148,7 @@ class _HomescreenState extends State<Homescreen> {
     //         points[i + 1].longitude);
     //   });
     // }
-    print(totalDistance);
+    // print(totalDistance);
     List<Widget> _navScreens = [
       OrdersScreen(lat: lat, long: long),
       VehicleScreen(vehicleId: widget.vehicleId)
