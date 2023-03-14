@@ -25,8 +25,11 @@ class _HomescreenState extends State<Homescreen> {
   late double long = 0;
   late GeoPoint prevLocation;
   late GeoPoint currLocation;
-
   late int count = 0;
+
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+
   double totalDistance = 0;
 //!BUG: TOtal distance on app startup might be super large/wrong.
   double calculateDistance(lat1, lon1, lat2, lon2) {
@@ -39,7 +42,7 @@ class _HomescreenState extends State<Homescreen> {
     return 12742 * asin(sqrt(a));
   }
 
-  List<GeoPoint> points = [];
+  // List<GeoPoint> points = [];
 
   late PageController _pageController;
   int _selectedIndex = 0;
@@ -57,7 +60,25 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   void initializeLocation() async {
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    location.changeSettings(
+        accuracy: LocationAccuracy.high, interval: 3000, distanceFilter: 5);
     LocationData locationData = await location.getLocation();
+
     prevLocation = GeoPoint(locationData.latitude!, locationData.longitude!);
     currLocation = GeoPoint(locationData.latitude!, locationData.longitude!);
   }
@@ -66,9 +87,9 @@ class _HomescreenState extends State<Homescreen> {
   initState() {
     super.initState();
     _pageController = PageController();
-    location.changeSettings(
-        accuracy: LocationAccuracy.high, interval: 3000, distanceFilter: 5);
+
     initializeLocation();
+
     location.onLocationChanged.listen((event) {
       if (mounted) {
         setState(() {
@@ -108,36 +129,24 @@ class _HomescreenState extends State<Homescreen> {
           }
 
           count += 1;
-          // GeoPoint currPoint = GeoPoint(lat, long);
-          // if (points.isEmpty) {
-          //   points.add(currPoint);
-          // } else if (points.isNotEmpty && points.last != currPoint) {
-          //   points.add(currPoint);
-          // }
-          // var ref = db.collection("vehicles").doc(widget.vehicleId);
-          // ref.update({"location": currPoint, "mileage": totalDistance});
         });
       }
-      // print(lat.toString() + "   " + long.toString());
-      // for (GeoPoint point in points) {
-      //   print(point.latitude.toString() + ", " + point.longitude.toString());
-      // }
-      // print(points.toString());
+
       print("count" + count.toString());
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    for (var i = 0; i < points.length - 1; i++) {
-      setState(() {
-        totalDistance += calculateDistance(
-            points[i].latitude,
-            points[i].longitude,
-            points[i + 1].latitude,
-            points[i + 1].longitude);
-      });
-    }
+    // for (var i = 0; i < points.length - 1; i++) {
+    //   setState(() {
+    //     totalDistance += calculateDistance(
+    //         points[i].latitude,
+    //         points[i].longitude,
+    //         points[i + 1].latitude,
+    //         points[i + 1].longitude);
+    //   });
+    // }
     print(totalDistance);
     List<Widget> _navScreens = [
       OrdersScreen(lat: lat, long: long),
