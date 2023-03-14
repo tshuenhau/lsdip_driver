@@ -42,6 +42,8 @@ dependencies:
   awesome_select: ^6.0.0
   auto_size_text: ^3.0.0
   latlong2: ^0.8.1
+  firebase_auth: ^4.2.2
+  email_validator: ^2.1.17
 
 dev_dependencies:
   flutter_test:

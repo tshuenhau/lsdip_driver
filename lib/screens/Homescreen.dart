@@ -7,6 +7,8 @@ import 'package:lsdip_driver/widgets/layout/CustomBottomNavigationBar.dart';
 import 'package:lsdip_driver/widgets/layout/CustomPageView.dart';
 import 'dart:math' show cos, sqrt, asin;
 
+import 'package:latlong2/latlong.dart';
+
 class Homescreen extends StatefulWidget {
   Homescreen({required this.vehicleId, super.key});
   String vehicleId;
@@ -26,8 +28,9 @@ class _HomescreenState extends State<Homescreen> {
 
   late int count = 0;
   double totalDistance = 0;
-
+//!BUG: TOtal distance on app startup might be super large/wrong.
   double calculateDistance(lat1, lon1, lat2, lon2) {
+    //!Return value is in KM i think.
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
@@ -75,12 +78,20 @@ class _HomescreenState extends State<Homescreen> {
           currLocation = GeoPoint(lat, long);
 
           if (currLocation != prevLocation) {
+            final Distance distance = Distance();
+
+            // km = 423
+            final double km = distance(
+                LatLng(prevLocation.latitude, prevLocation.longitude),
+                LatLng(currLocation.latitude, currLocation.longitude));
+            print("latlong total distance " + km.toString());
+
             double totalDistance = calculateDistance(
                 prevLocation.latitude,
                 prevLocation.longitude,
                 currLocation.latitude,
                 currLocation.longitude);
-            print(totalDistance);
+            print("total distance " + totalDistance.toString());
             var ref = db.collection("vehicles").doc(widget.vehicleId);
             const source = Source.cache;
             ref.get(const GetOptions(source: source)).then(
@@ -134,7 +145,7 @@ class _HomescreenState extends State<Homescreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Driver")),
+      appBar: AppBar(title: Text("Driver"), automaticallyImplyLeading: false),
       body: CustomPageView(
         navScreens: _navScreens,
         pageController: _pageController,

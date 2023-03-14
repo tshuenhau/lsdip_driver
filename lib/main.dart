@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lsdip_driver/App.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:lsdip_driver/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 //https://stackoverflow.com/questions/54138750/total-distance-calculation-from-latlng-list
 //https://pub.dev/packages/latlong2

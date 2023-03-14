@@ -3,7 +3,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:location/location.dart';
 
-//!https://stackoverflow.com/questions/65516604/flutter-stream-location-and-user-data-to-firestore
+//TODO: Get list of orders from firestore based on current time ig? >12pm = PM shift
 class OrdersScreen extends StatefulWidget {
   OrdersScreen({required this.lat, required this.long, super.key});
   double lat;
