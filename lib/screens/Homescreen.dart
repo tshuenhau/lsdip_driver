@@ -8,6 +8,7 @@ import 'package:lsdip_driver/widgets/layout/CustomPageView.dart';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Homescreen extends StatefulWidget {
   Homescreen({required this.vehicleId, super.key});
@@ -28,7 +29,7 @@ class _HomescreenState extends State<Homescreen> {
   late int count = 0;
 
   late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
+  // late PermissionStatus _permissionGranted;
 
   double totalDistance = 0;
 //!BUG: TOtal distance on app startup might be super large/wrong.
@@ -59,21 +60,31 @@ class _HomescreenState extends State<Homescreen> {
     super.dispose();
   }
 
-  void initializeLocation() async {
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
+  void checkLocationPermanentlyDisabled() async {}
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
+  void initializeLocation() async {
+    // _serviceEnabled = await location.serviceEnabled();
+    // if (!_serviceEnabled) {
+    //   _serviceEnabled = await location.requestService();
+    //   if (!_serviceEnabled) {
+    //     return;
+    //   }
+    // }
+
+    // _permissionGranted = await location.hasPermission();
+    // if (_permissionGranted == PermissionStatus.denied) {
+    //   _permissionGranted = await location.requestPermission();
+    //   if (_permissionGranted != PermissionStatus.granted) {
+    //     return;
+    //   }
+    // }
+    if (await Permission.location.isPermanentlyDenied) {
+      // The user opted to never again see the permission request dialog for this
+      // app. The only way to change the permission's status now is to let the
+      // user manually enable it in the system settings.
+      await openAppSettings();
+    } else if (!await Permission.location.request().isGranted) {
+      return;
     }
     location.changeSettings(
         accuracy: LocationAccuracy.high, interval: 3000, distanceFilter: 5);
@@ -87,7 +98,7 @@ class _HomescreenState extends State<Homescreen> {
   initState() {
     super.initState();
     _pageController = PageController();
-
+    checkLocationPermanentlyDisabled();
     initializeLocation();
 
     location.onLocationChanged.listen((event) {
