@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:awesome_select/awesome_select.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:lsdip_driver/screens/SelectVehicleScreen.dart';
 
 //TODO: Update vehicle status
 class VehicleScreen extends StatefulWidget {
@@ -113,18 +114,23 @@ class _VehicleScreenState extends State<VehicleScreen> {
                         ref.update({"vehicleStatus": state.value});
                       }),
                 ),
-                // ElevatedButton(
-                //     onPressed: () async {
-                //       var ref = db.collection("vehicles").doc(widget.vehicleId);
-                //       // print(vehicleRef);
+                ElevatedButton(
+                    onPressed: () async {
+                      var ref = db.collection("vehicles").doc(widget.vehicleId);
+                      // print(vehicleRef);
 
-                //       if (data["vehicleStatus"] == "updated") {
-                //         ref.update({"vehicleStatus": "lol"});
-                //       } else {
-                //         ref.update({"vehicleStatus": "updated"});
-                //       }
-                //     },
-                //     child: Text("Update Status"))
+                      if (data["vehicleStatus"] == "Active") {
+                        ref.update({"vehicleStatus": "Inactive"});
+                      } else {
+                        ref.update({"vehicleStatus": "Inactive"});
+                      }
+
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SelectVehicleScreen()));
+                    },
+                    child: Text("Leave Vehicle"))
               ],
             ));
 

@@ -75,6 +75,7 @@ class _SelectVehicleState extends State<SelectVehicle> {
                   },
                   items: listQueryDocumentSnapshot
                       .map<DropdownMenuItem<String>>((document) {
+                    print(document);
                     return DropdownMenuItem<String>(
                       value: document.id,
                       child: Text(document['numberPlate']),

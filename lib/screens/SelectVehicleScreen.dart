@@ -44,7 +44,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
             duration: const Duration(milliseconds: 900)),
       );
       Future.delayed(const Duration(milliseconds: 1000), () {
-        //TODO: Replace with creating firebase doc and saving it
+        //TODO: check if status is active
 // Here you can write your code
         Navigator.pushReplacement(
             context,
@@ -76,12 +76,22 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                   List<QueryDocumentSnapshot> listQueryDocumentSnapshot =
                       querySnapshot.docs;
 
-                  if (setDefaultValue) {
-                    dropdownValue = listQueryDocumentSnapshot[0].id;
+                  List<QueryDocumentSnapshot> vehicles =
+                      listQueryDocumentSnapshot
+                          .where((element) =>
+                              element["vehicleStatus"] == "Inactive")
+                          .toList();
+
+                  if (setDefaultValue && vehicles.length > 0) {
+                    dropdownValue = vehicles[0]
+                        .id; //TODO: Default value needs to be fixed, if the default value changes vehicle status the app crashes
+                  } else if (vehicles.length < 1) {
+                    dropdownValue = "";
                   }
 
                   return DropdownButton<String>(
                     value: dropdownValue,
+                    disabledHint: Text("None Available"),
                     icon: const Icon(Icons.arrow_downward),
                     elevation: 16,
                     style: const TextStyle(color: Colors.deepPurple),
@@ -96,13 +106,14 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                         setDefaultValue = false;
                       });
                     },
-                    items: listQueryDocumentSnapshot
-                        .map<DropdownMenuItem<String>>((document) {
-                      return DropdownMenuItem<String>(
-                        value: document.id,
-                        child: Text(document['numberPlate']),
-                      );
-                    }).toList(),
+                    items: vehicles.length < 1
+                        ? null
+                        : vehicles.map<DropdownMenuItem<String>>((document) {
+                            return DropdownMenuItem<String>(
+                              value: document.id,
+                              child: Text(document['numberPlate']),
+                            );
+                          }).toList(),
                   );
                 }
                 return Center(
@@ -114,17 +125,19 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
           ),
           ElevatedButton(
               onPressed: () async {
-                var ref = db.collection("vehicles").doc(dropdownValue);
-                ref.update({
-                  "vehicleStatus": "Active",
-                  "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
-                });
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Homescreen(
-                              vehicleId: dropdownValue,
-                            )));
+                if (dropdownValue.length > 0) {
+                  var ref = db.collection("vehicles").doc(dropdownValue);
+                  ref.update({
+                    "vehicleStatus": "Active",
+                    "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
+                  });
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Homescreen(
+                                vehicleId: dropdownValue,
+                              )));
+                }
               },
               child: Text("Continue"))
         ],
