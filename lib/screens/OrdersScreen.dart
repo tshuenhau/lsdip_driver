@@ -7,8 +7,6 @@ import 'package:location/location.dart';
 
 //TODO: Get list of orders from firestore based on current time ig? >12pm = PM shift
 
-enum shift { AM, PM }
-
 class OrdersScreen extends StatefulWidget {
   OrdersScreen({required this.lat, required this.long, super.key});
   double lat;
@@ -20,7 +18,7 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String time = "2023-04-14";
+  String time = "2023-04-19";
 
   late Stream<DocumentSnapshot> shiftOrdersStream =
       db.collection("shift_orders").doc(time).snapshots();
@@ -33,26 +31,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return data;
   }
 
-  List filterOrders(List orders, var shiftOrders) {
+  List processOrders(List orders, var shiftOrders) {
     List result = [];
 
-    //TODO do the checks for shift here
-    // print("order_shift " + shiftOrders["am_shift"].toString());
+    print(shiftOrders.toString());
 
-    // for (var shiftOrder in shiftOrders) {
-    //   print("slodls" + shiftOrder);
-    // }
+    //TODO: Add in the customer details to the order
 
     for (var order in orders) {
       for (var shiftOrder in shiftOrders) {
-        if (order["orderId"] == shiftOrder) {
+        if (shiftOrder["id"] == order["orderId"] &&
+            order["orderStatus"] == "Pending Delivery") {
+          order["timing"] = shiftOrder["timing"];
           result.add(order);
-          print("Success");
         }
       }
-      // print("order " + order["orderId"].toString());
-
-      // print(order["orderId"]);
     }
     return result;
 
@@ -66,7 +59,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     DateTime timeNow = DateTime.now();
     // print(DateFormat('yyyy-MM-dd').format(timeNow));
 
-    print(shiftOrdersStream.toString());
+    // print(shiftOrdersStream.toString());
 
     if (DateTime.now().hour > 12) //PM Shift
     {
@@ -83,15 +76,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
               if (snapshot.connectionState == ConnectionState.active) {
                 List orders =
                     snapshot.data!.docs.map((DocumentSnapshot document) {
-                  print(document
-                      .id); //!This is necessary to crossreference later on
+                  // print(document
+                  //     .id); //!This is necessary to crossreference later on
                   Map<String, dynamic> data =
                       document.data()! as Map<String, dynamic>;
                   data["orderId"] = document.id;
                   // return data["customerName"];
                   return checkOrder(data); //TODO make it the entire order obj
                 }).toList();
-                print(orders);
+                // print(orders);
 
                 return StreamBuilder<DocumentSnapshot>(
                     stream: shiftOrdersStream,
@@ -99,19 +92,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         AsyncSnapshot<DocumentSnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.active) {
                         var data = snapshot.data as DocumentSnapshot;
+                        print(data["orders"][0]);
 
-                        List filteredOrders =
-                            filterOrders(orders, data["am_shift"]);
+                        List processedOrders =
+                            processOrders(orders, data["orders"]);
                         // print("order_shift " + data["am_shift"][0]);
-                        // return ListView.builder(
-                        //   itemCount: data["am_shift"].length,
-                        //   shrinkWrap: true,
-                        //   itemBuilder: (BuildContext context, int index) {
-                        //     return Card(child: Text(data["am_shift"][index]));
-                        //   },
-                        // );
+                        return ListView.builder(
+                          itemCount: processedOrders.length,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Card(
+                                child: Column(
+                              children: [
+                                Text(processedOrders[index]["orderId"]),
+                                Text(processedOrders[index]["timing"]),
+                                Text(processedOrders[index]["customerName"]),
+                              ],
+                            ));
+                          },
+                        );
 
-                        return Text(filteredOrders.toString());
+                        // return Text(processedOrders.toString());
                       } else {
                         return CircularProgressIndicator();
                       }
