@@ -33,6 +33,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
   @override
   void dispose() {
     super.dispose();
+
     doSelectVehicle();
 
     dropdownValue = "";
@@ -154,10 +155,12 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
   }
 
   Future<void> doSelectVehicle() async {
-    var ref = db.collection("vehicles").doc(dropdownValue);
-    await ref.update({
-      "vehicleStatus": "Active",
-      "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
-    });
+    if (dropdownValue != "") {
+      var ref = db.collection("vehicles").doc(dropdownValue);
+      await ref.update({
+        "vehicleStatus": "Active",
+        "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
+      });
+    }
   }
 }

@@ -123,7 +123,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
                       // print(vehicleRef);
 
                       if (data["vehicleStatus"] == "Active") {
-                        await ref.update({"vehicleStatus": "Inactive"});
+                        await ref.update(
+                            {"vehicleStatus": "Inactive", "driver": ""});
                         if (!mounted) return;
 
                         Navigator.pushReplacement(
