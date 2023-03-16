@@ -43,6 +43,7 @@ class _AppState extends State<App> {
         isLoggedIn = false;
       } else {
         isLoggedIn = true;
+        print(user);
         print('User is signed in!');
       }
     });

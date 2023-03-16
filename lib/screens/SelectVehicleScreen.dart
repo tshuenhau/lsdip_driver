@@ -30,13 +30,21 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
     vehicleStream = vehiclesReference.snapshots();
   }
 
-  late String dropdownValue;
+  @override
+  void dispose() {
+    super.dispose();
+    doSelectVehicle();
+
+    dropdownValue = "";
+  }
+
+  String dropdownValue = "";
   var setDefaultValue = true;
 
   @override
   Widget build(BuildContext context) {
-    print(FirebaseAuth.instance.currentUser);
-
+    print(
+        FirebaseAuth.instance.currentUser!.displayName.toString() + " hewrewt");
     void doSubmit() {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -106,7 +114,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                         setDefaultValue = false;
                       });
                     },
-                    items: vehicles.length < 1
+                    items: vehicles.isEmpty
                         ? null
                         : vehicles.map<DropdownMenuItem<String>>((document) {
                             return DropdownMenuItem<String>(
@@ -116,7 +124,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                           }).toList(),
                   );
                 }
-                return Center(
+                return const Center(
                     child: SizedBox(child: CircularProgressIndicator()));
               }),
           SizedBox(
@@ -125,17 +133,17 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
           ),
           ElevatedButton(
               onPressed: () async {
-                if (dropdownValue.length > 0) {
-                  var ref = db.collection("vehicles").doc(dropdownValue);
-                  ref.update({
-                    "vehicleStatus": "Active",
-                    "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
-                  });
+                if (dropdownValue.isNotEmpty) {
+                  var vehicleId = dropdownValue;
+                  if (!mounted) return;
+
+                  //TODO: Might need to put a loading page
+
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) => Homescreen(
-                                vehicleId: dropdownValue,
+                                vehicleId: vehicleId,
                               )));
                 }
               },
@@ -143,5 +151,13 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
         ],
       ))),
     );
+  }
+
+  Future<void> doSelectVehicle() async {
+    var ref = db.collection("vehicles").doc(dropdownValue);
+    await ref.update({
+      "vehicleStatus": "Active",
+      "driver": FirebaseAuth.instance.currentUser?.uid ?? ""
+    });
   }
 }

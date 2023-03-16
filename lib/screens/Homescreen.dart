@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:lsdip_driver/screens/OrdersScreen.dart';
@@ -57,6 +58,7 @@ class _HomescreenState extends State<Homescreen> {
   @override
   void dispose() {
     _pageController.dispose();
+
     super.dispose();
   }
 
@@ -88,6 +90,7 @@ class _HomescreenState extends State<Homescreen> {
   @override
   initState() {
     super.initState();
+
     _pageController = PageController();
     initializeLocation();
 

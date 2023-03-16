@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -73,10 +74,12 @@ class _VehicleScreenState extends State<VehicleScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text("user id: " +
+                    FirebaseAuth.instance.currentUser!.uid.toString()),
                 Text("numberPlate: " + data["numberPlate"] ?? ''),
                 // Text("status: " + data["vehicleStatus"] ?? ''),
 
-                Text("starting mileage: " + data["mileage"].toString() ?? ''),
+                Text("mileage(KM): " + data["mileage"].toString() ?? ''),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 50 / 100,
                   // height: MediaQuery.of(context).size.height * 5 / 100,
@@ -120,15 +123,14 @@ class _VehicleScreenState extends State<VehicleScreen> {
                       // print(vehicleRef);
 
                       if (data["vehicleStatus"] == "Active") {
-                        ref.update({"vehicleStatus": "Inactive"});
-                      } else {
-                        ref.update({"vehicleStatus": "Inactive"});
-                      }
+                        await ref.update({"vehicleStatus": "Inactive"});
+                        if (!mounted) return;
 
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SelectVehicleScreen()));
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SelectVehicleScreen()));
+                      }
                     },
                     child: Text("Leave Vehicle"))
               ],
