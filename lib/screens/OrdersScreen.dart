@@ -31,9 +31,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
       db.collection("order_driver").snapshots();
 
   // shiftOrdersStream = db.collection("shift_orders").doc(time).snapshots();
-  dynamic checkOrder(Map<String, dynamic> data) {
-    //TODO: query firebase orders_shift to find matching and also query customers for those matching to get their address
-    return data;
+  List processCurrentOrders(List orders, var orderDrivers, var shiftOrders) {
+    List result = [];
+    //TODO: query firebase to find current order being undertaken if any
+    for (var order in orders) {
+      for (var orderDriver in orderDrivers) {
+        // print("order_Drivers :" + orderDrivers.toString());
+        // print(FirebaseAuth.instance.currentUser!.uid);
+        // print(orderDriver["driverId"]);
+
+        if (orderDriver["driverId"] == FirebaseAuth.instance.currentUser!.uid &&
+            order["orderStatus"] == "Out for Delivery") {
+          for (var shiftOrder in shiftOrders) {
+            if (shiftOrder["id"] == order["orderId"]) {
+              order["timing"] = shiftOrder["timing"];
+              result.add(order);
+              break;
+            }
+          }
+        }
+      }
+    }
+    print(result);
+    return result;
   }
 
   List processOrders(List orders, var shiftOrders) {
@@ -41,7 +61,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
     print(shiftOrders.toString());
 
-    //TODO: Add in the customer details to the order
+    //TODO: Need to sort by time
 
     for (var order in orders) {
       for (var shiftOrder in shiftOrders) {
@@ -87,7 +107,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       document.data()! as Map<String, dynamic>;
                   data["orderId"] = document.id;
                   // return data["customerName"];
-                  return checkOrder(data); //TODO make it the entire order obj
+                  return data; //TODO make it the entire order obj
                 }).toList();
                 // print(orders);
 
@@ -95,105 +115,302 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     stream: shiftOrdersStream,
                     builder: (BuildContext context,
                         AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      var shift_orders;
                       if (snapshot.connectionState == ConnectionState.active) {
                         var data = snapshot.data as DocumentSnapshot;
-                        print(data["orders"][0]);
+                        shift_orders = data;
                         List processedOrders =
                             processOrders(orders, data["orders"]);
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width * 95 / 100,
-                          child: ListView.builder(
-                            itemCount: processedOrders.length,
-                            shrinkWrap: true,
-                            itemBuilder: (BuildContext context, int index) {
-                              var order = processedOrders[index];
-                              return InkWell(
-                                onTap: () {
-                                  showModalBottomSheet<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                80 /
-                                                100,
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              Text(order["orderId"]),
-                                              Text(order["customerAddress"] ==
-                                                      ""
-                                                  ? "No Address"
-                                                  : order["customerAddress"]),
-                                              ElevatedButton(
-                                                child:
-                                                    const Text('Select order'),
-                                                onPressed: () {
-                                                  db
-                                                      .collection("orders")
-                                                      .doc(order["orderId"])
-                                                      .update({
-                                                    "orderStatus":
-                                                        "Out for Delivery"
-                                                  });
-                                                  db
-                                                      .collection(
-                                                          "order_driver")
-                                                      .doc(order["orderId"])
-                                                      .set({
-                                                    "orderId": order["orderId"],
-                                                    "driverId": FirebaseAuth
-                                                        .instance
-                                                        .currentUser!
-                                                        .uid,
-                                                    "status":
-                                                        0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                  }).onError((e, _) => print(
-                                                          "Error writing document: $e"));
+                        // List currentOrders =
+                        // checkCurrentOrders(orders, data["orders"]);
+                        //TODO: Maybe need to nest one more streambuilder for order_driver
 
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Card(
-                                    elevation: 1,
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: MediaQuery.of(context)
+                        return StreamBuilder<QuerySnapshot>(
+                            stream: orderDriverStream,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.active) {
+                                List data = snapshot.data!.docs
+                                    .map((DocumentSnapshot document) {
+                                  // print(document
+                                  //     .id); //!This is necessary to crossreference later on
+                                  Map<String, dynamic> data =
+                                      document.data()! as Map<String, dynamic>;
+                                  // data["orderId"] = document.id;
+                                  // return data["customerName"];
+                                  return data; //TODO make it the entire order obj
+                                }).toList();
+
+                                List currentOrders = processCurrentOrders(
+                                    orders, data, shift_orders["orders"]);
+
+                                return SizedBox(
+                                  height: MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.width *
+                                      95 /
+                                      100,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                          height: MediaQuery.of(context)
                                                   .size
                                                   .height *
-                                              1 /
-                                              100),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(order["orderId"]),
-                                          Text(order["timing"]),
-                                          Text(order["customerName"]),
-                                          Text(order["customerAddress"].length >
-                                                  0
-                                              ? order["customerAddress"]
-                                              : "No address"),
-                                        ],
+                                              5 /
+                                              100,
+                                          child: Center(
+                                              child: Text("Avilable Orders"))),
+                                      ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: currentOrders.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            var currentOrder =
+                                                currentOrders[index];
+                                            print(currentOrder);
+                                            // return Container(
+                                            //     child: Text(
+                                            //         currentOrder.toString()));
+                                            return InkWell(
+                                              onTap: () {
+                                                showModalBottomSheet<void>(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return SizedBox(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              80 /
+                                                              100,
+                                                      child: Center(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: <Widget>[
+                                                            Text(currentOrder[
+                                                                "orderId"]),
+                                                            Text(currentOrder[
+                                                                        "customerAddress"] ==
+                                                                    ""
+                                                                ? "No Address"
+                                                                : currentOrder[
+                                                                    "customerAddress"]),
+                                                            ElevatedButton(
+                                                              child: const Text(
+                                                                  'Select order'),
+                                                              onPressed: () {
+                                                                // db
+                                                                //     .collection(
+                                                                //         "orders")
+                                                                //     .doc(currentOrder[
+                                                                //         "orderId"])
+                                                                //     .update({
+                                                                //   "orderStatus":
+                                                                //       "Out for Delivery"
+                                                                // });
+                                                                // db
+                                                                //     .collection(
+                                                                //         "order_driver")
+                                                                //     .doc(currentOrder[
+                                                                //         "orderId"])
+                                                                //     .set({
+                                                                //   "orderId":
+                                                                //       currentOrder[
+                                                                //           "orderId"],
+                                                                //   "driverId":
+                                                                //       FirebaseAuth
+                                                                //           .instance
+                                                                //           .currentUser!
+                                                                //           .uid,
+                                                                //   "status":
+                                                                //       0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                                // }).onError((e,
+                                                                //             _) =>
+                                                                //         print(
+                                                                //             "Error writing document: $e"));
+
+                                                                // Navigator.of(
+                                                                //         context)
+                                                                //     .pop();
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Card(
+                                                  elevation: 1,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.symmetric(
+                                                        vertical: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            1 /
+                                                            100),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(currentOrder[
+                                                            "orderId"]),
+                                                        Text(currentOrder[
+                                                            "timing"]),
+                                                        Text(currentOrder[
+                                                            "customerName"]),
+                                                        Text(currentOrder[
+                                                                        "customerAddress"]
+                                                                    .length >
+                                                                0
+                                                            ? currentOrder[
+                                                                "customerAddress"]
+                                                            : "No address"),
+                                                      ],
+                                                    ),
+                                                  )),
+                                            );
+                                          }),
+                                      Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              5 /
+                                              100,
+                                          child: Center(
+                                              child: Text("Avilable Orders"))),
+                                      ListView.builder(
+                                        itemCount: processedOrders.length,
+                                        shrinkWrap: true,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var order = processedOrders[index];
+                                          return InkWell(
+                                            onTap: () {
+                                              showModalBottomSheet<void>(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            80 /
+                                                            100,
+                                                    child: Center(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: <Widget>[
+                                                          Text(
+                                                              order["orderId"]),
+                                                          Text(order["customerAddress"] ==
+                                                                  ""
+                                                              ? "No Address"
+                                                              : order[
+                                                                  "customerAddress"]),
+                                                          ElevatedButton(
+                                                            child: const Text(
+                                                                'Select order'),
+                                                            onPressed: () {
+                                                              db
+                                                                  .collection(
+                                                                      "orders")
+                                                                  .doc(order[
+                                                                      "orderId"])
+                                                                  .update({
+                                                                "orderStatus":
+                                                                    "Out for Delivery"
+                                                              });
+                                                              db
+                                                                  .collection(
+                                                                      "order_driver")
+                                                                  .doc(order[
+                                                                      "orderId"])
+                                                                  .set({
+                                                                "orderId": order[
+                                                                    "orderId"],
+                                                                "driverId":
+                                                                    FirebaseAuth
+                                                                        .instance
+                                                                        .currentUser!
+                                                                        .uid,
+                                                                "status":
+                                                                    0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                              }).onError((e,
+                                                                          _) =>
+                                                                      print(
+                                                                          "Error writing document: $e"));
+
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Card(
+                                                elevation: 1,
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              1 /
+                                                              100),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(order["orderId"]),
+                                                      Text(order["timing"]),
+                                                      Text(order[
+                                                          "customerName"]),
+                                                      Text(order["customerAddress"]
+                                                                  .length >
+                                                              0
+                                                          ? order[
+                                                              "customerAddress"]
+                                                          : "No address"),
+                                                    ],
+                                                  ),
+                                                )),
+                                          );
+                                        },
                                       ),
-                                    )),
-                              );
-                            },
-                          ),
-                        );
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            });
                       } else {
                         return CircularProgressIndicator();
                       }
