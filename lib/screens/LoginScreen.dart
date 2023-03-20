@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lsdip_driver/screens/SelectVehicleScreen.dart';
 import 'package:email_validator/email_validator.dart';
 
-//TODO: Get the mileage from firebase
-//TODO: add get state management https://blog.logrocket.com/ultimate-guide-getx-state-management-flutter/
+//TODO: Wrong credentials
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
 

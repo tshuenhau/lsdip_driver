@@ -6,9 +6,6 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
-//TODO: Get list of orders from firestore based on current time ig? >12pm = PM shift
-//TODO:Figure out how to get the current order being deliverd
-
 class OrdersScreen extends StatefulWidget {
   OrdersScreen({required this.lat, required this.long, super.key});
   double lat;
@@ -17,7 +14,6 @@ class OrdersScreen extends StatefulWidget {
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-//TODO: new collection driver - orderid (will delete once delivered)
 class _OrdersScreenState extends State<OrdersScreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -32,26 +28,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   // shiftOrdersStream = db.collection("shift_orders").doc(time).snapshots();
   List processCurrentOrders(List orders, var orderDrivers, var shiftOrders) {
-    List result = [];
-    //TODO: query firebase to find current order being undertaken if any
-    for (var order in orders) {
-      for (var orderDriver in orderDrivers) {
-        // print("order_Drivers :" + orderDrivers.toString());
-        // print(FirebaseAuth.instance.currentUser!.uid);
-        // print(orderDriver["driverId"]);
+    //TODO: Need to sort by time
 
-        if (orderDriver["driverId"] == FirebaseAuth.instance.currentUser!.uid &&
-            order["orderStatus"] == "Out for Delivery") {
-          for (var shiftOrder in shiftOrders) {
-            if (shiftOrder["id"] == order["orderId"]) {
-              order["timing"] = shiftOrder["timing"];
-              result.add(order);
-              break;
-            }
+    List result = [];
+    for (var order in orders) {
+      for (var shiftOrder in shiftOrders) {
+        for (var orderDriver in orderDrivers) {
+          if (orderDriver["driverId"] ==
+                  FirebaseAuth.instance.currentUser!.uid &&
+              order["orderStatus"] == "Out for Delivery" &&
+              shiftOrder["id"] == order["orderId"] &&
+              orderDriver["orderId"] == order["orderId"]) {
+            order["timing"] = shiftOrder["timing"];
+            result.add(order);
+            // print("YESSSSSSSSSSSSSSSSSS");
           }
         }
       }
     }
+
     print(result);
     return result;
   }
@@ -73,8 +68,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
       }
     }
     return result;
-
-    //TODO:still need to check for
   }
 
   @override
@@ -107,7 +100,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       document.data()! as Map<String, dynamic>;
                   data["orderId"] = document.id;
                   // return data["customerName"];
-                  return data; //TODO make it the entire order obj
+                  return data;
                 }).toList();
                 // print(orders);
 
@@ -121,9 +114,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         shift_orders = data;
                         List processedOrders =
                             processOrders(orders, data["orders"]);
-                        // List currentOrders =
-                        // checkCurrentOrders(orders, data["orders"]);
-                        //TODO: Maybe need to nest one more streambuilder for order_driver
 
                         return StreamBuilder<QuerySnapshot>(
                             stream: orderDriverStream,
@@ -139,7 +129,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                       document.data()! as Map<String, dynamic>;
                                   // data["orderId"] = document.id;
                                   // return data["customerName"];
-                                  return data; //TODO make it the entire order obj
+                                  return data;
                                 }).toList();
 
                                 List currentOrders = processCurrentOrders(
@@ -160,7 +150,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                               5 /
                                               100,
                                           child: Center(
-                                              child: Text("Avilable Orders"))),
+                                              child: Text("Current Orders"))),
                                       ListView.builder(
                                           shrinkWrap: true,
                                           itemCount: currentOrders.length,
@@ -201,44 +191,98 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                 ? "No Address"
                                                                 : currentOrder[
                                                                     "customerAddress"]),
-                                                            ElevatedButton(
-                                                              child: const Text(
-                                                                  'Select order'),
-                                                              onPressed: () {
-                                                                // db
-                                                                //     .collection(
-                                                                //         "orders")
-                                                                //     .doc(currentOrder[
-                                                                //         "orderId"])
-                                                                //     .update({
-                                                                //   "orderStatus":
-                                                                //       "Out for Delivery"
-                                                                // });
-                                                                // db
-                                                                //     .collection(
-                                                                //         "order_driver")
-                                                                //     .doc(currentOrder[
-                                                                //         "orderId"])
-                                                                //     .set({
-                                                                //   "orderId":
-                                                                //       currentOrder[
-                                                                //           "orderId"],
-                                                                //   "driverId":
-                                                                //       FirebaseAuth
-                                                                //           .instance
-                                                                //           .currentUser!
-                                                                //           .uid,
-                                                                //   "status":
-                                                                //       0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                                // }).onError((e,
-                                                                //             _) =>
-                                                                //         print(
-                                                                //             "Error writing document: $e"));
+                                                            Column(
+                                                              children: [
+                                                                ElevatedButton(
+                                                                  child: const Text(
+                                                                      'Confirm Delivery'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    db
+                                                                        .collection(
+                                                                            "orders")
+                                                                        .doc(currentOrder[
+                                                                            "orderId"])
+                                                                        .update({
+                                                                      "orderStatus":
+                                                                          "Delivered"
+                                                                    });
+                                                                    db
+                                                                        .collection(
+                                                                            "order_driver")
+                                                                        .doc(currentOrder[
+                                                                            "orderId"])
+                                                                        .set({
+                                                                      "orderId":
+                                                                          currentOrder[
+                                                                              "orderId"],
+                                                                      "driverId": FirebaseAuth
+                                                                          .instance
+                                                                          .currentUser!
+                                                                          .uid,
+                                                                      "status":
+                                                                          1 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                                    }).onError((e,
+                                                                                _) =>
+                                                                            print("Error writing document: $e"));
 
-                                                                // Navigator.of(
-                                                                //         context)
-                                                                //     .pop();
-                                                              },
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                                ElevatedButton(
+                                                                  child: const Text(
+                                                                      'Cancel Delivery'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    db
+                                                                        .collection(
+                                                                            "orders")
+                                                                        .doc(currentOrder[
+                                                                            "orderId"])
+                                                                        .update({
+                                                                      "orderStatus":
+                                                                          "Pending Delivery"
+                                                                    });
+
+                                                                    db
+                                                                        .collection(
+                                                                            "order_driver")
+                                                                        .doc(currentOrder[
+                                                                            "orderId"])
+                                                                        .delete()
+                                                                        .then(
+                                                                          (doc) =>
+                                                                              print("Document deleted"),
+                                                                          onError: (e) =>
+                                                                              print("Error updating document $e"),
+                                                                        );
+                                                                    // db
+                                                                    //     .collection(
+                                                                    //         "order_driver")
+                                                                    //     .doc(currentOrder[
+                                                                    //         "orderId"])
+                                                                    //     .set({
+                                                                    //   "orderId":
+                                                                    //       currentOrder[
+                                                                    //           "orderId"],
+                                                                    //   "driverId": FirebaseAuth
+                                                                    //       .instance
+                                                                    //       .currentUser!
+                                                                    //       .uid,
+                                                                    //   "status":
+                                                                    //       0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                                    // }).onError((e,
+                                                                    //             _) =>
+                                                                    //         print("Error writing document: $e"));
+
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),
@@ -415,8 +459,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         return CircularProgressIndicator();
                       }
                     });
-
-                //TODO: possibly put a streambuilder here as well to check am pm shift orders
               }
 
               return const Center(

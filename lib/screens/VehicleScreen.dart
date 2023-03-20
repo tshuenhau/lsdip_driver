@@ -7,6 +7,8 @@ import 'package:awesome_select/awesome_select.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:lsdip_driver/screens/SelectVehicleScreen.dart';
 
+import 'LoginScreen.dart';
+
 //TODO: Update vehicle status
 class VehicleScreen extends StatefulWidget {
   VehicleScreen({required this.vehicleId, super.key});
@@ -133,7 +135,23 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                 builder: (context) => SelectVehicleScreen()));
                       }
                     },
-                    child: Text("Leave Vehicle"))
+                    child: Text("Leave Vehicle")),
+                ElevatedButton(
+                    onPressed: () async {
+                      var ref = db.collection("vehicles").doc(widget.vehicleId);
+                      if (data["vehicleStatus"] == "Active") {
+                        await ref.update(
+                            {"vehicleStatus": "Inactive", "driver": ""});
+                        await FirebaseAuth.instance.signOut();
+                        if (!mounted) return;
+
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()));
+                      }
+                    },
+                    child: Text("Log out"))
               ],
             ));
 
