@@ -30,43 +30,43 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         final credential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email!, password: password!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Logging in...'),
+              duration: const Duration(milliseconds: 600)),
+        );
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          //TODO: Replace with creating firebase doc and saving it
+// Here you can write your code
+
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SelectVehicleScreen()));
+        });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
-          print('No user found for that email.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('Wrong Username...'),
+                duration: const Duration(milliseconds: 900)),
+          );
         } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('Wrong Password...'),
+                duration: const Duration(milliseconds: 900)),
+          );
         }
       }
     }
 
     void doSubmit() {
-      // Validate returns true if the form is valid, or false otherwise.
       if (_formKey.currentState!.validate()) {
-        // If the form is valid, display a snackbar. In the real world,
-        // you'd often call a server or save the information in a database.
         doLogin();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Logging in...'),
-              duration: const Duration(milliseconds: 900)),
-        );
 
-        if (FirebaseAuth.instance.currentUser != null) {
-          Future.delayed(const Duration(milliseconds: 1000), () {
-            //TODO: Replace with creating firebase doc and saving it
+        //TODO: Replace with creating firebase doc and saving it
 // Here you can write your code
-
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SelectVehicleScreen()));
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                backgroundColor: Colors.red,
-                content: Text('Wrong Username/Password...'),
-                duration: const Duration(milliseconds: 900)),
-          );
-        }
       }
     }
 
@@ -79,8 +79,25 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Text("Please Login:"),
             SizedBox(
+              height: MediaQuery.of(context).size.height * 5 / 100,
+            ),
+            SizedBox(
               width: MediaQuery.of(context).size.width * 65 / 100,
               child: TextFormField(
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Username',
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    // Set border for focused state
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Colors.blue),
+                      borderRadius: BorderRadius.circular(15),
+                    )),
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
                 // The validator receives the text that the user has entered.
@@ -106,8 +123,25 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(
+              height: MediaQuery.of(context).size.height * 2 / 100,
+            ),
+            SizedBox(
               width: MediaQuery.of(context).size.width * 65 / 100,
               child: TextFormField(
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Username',
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    // Set border for focused state
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Colors.blue),
+                      borderRadius: BorderRadius.circular(15),
+                    )),
                 obscureText: true,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.visiblePassword,
@@ -137,13 +171,11 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
                 onPressed: () async {
-                  // print("value" + value.toString());
-                  // var ref = db.collection("vehicles").doc(widget.vehicleId);
-                  // // print(vehicleRef);
-                  // await ref.update({"mileage": value});
                   doSubmit();
                 },
-                child: const Text('Login'),
+                child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 55 / 100,
+                    child: Center(child: Text('Login'))),
               ),
             ),
           ],
