@@ -47,15 +47,26 @@ class _LoginScreenState extends State<LoginScreen> {
         doLogin();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Processing Data...'),
+              content: Text('Logging in...'),
               duration: const Duration(milliseconds: 900)),
         );
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          //TODO: Replace with creating firebase doc and saving it
+
+        if (FirebaseAuth.instance.currentUser != null) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            //TODO: Replace with creating firebase doc and saving it
 // Here you can write your code
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SelectVehicleScreen()));
-        });
+
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SelectVehicleScreen()));
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('Wrong Username/Password...'),
+                duration: const Duration(milliseconds: 900)),
+          );
+        }
       }
     }
 
