@@ -51,7 +51,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             backgroundColor: Colors.white,
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(Icons.local_shipping),
                 label: 'Orders',
               ),
               BottomNavigationBarItem(

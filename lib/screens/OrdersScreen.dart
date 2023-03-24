@@ -47,6 +47,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
       }
     }
 
+    return result;
+  }
+
+  List sortOrdersByTime(List orders) {
+    List result = [];
+
+    for (var order in orders) {
+      DateTime startTime = DateFormat("HH:mm")
+          .parse(order["timing"].replaceAll(' ', '').split("-")[0]);
+      DateTime endTime = DateFormat("HH:mm")
+          .parse(order["timing"].replaceAll(' ', '').split("-")[1]);
+      order["startTime"] = startTime;
+      order["endTime"] = endTime;
+      result.add(order);
+      print("start Time: " + order["startTime"].toString());
+    }
+
+    result.sort((a, b) => a["startTime"].compareTo(b["startTime"]));
     print(result);
     return result;
   }
@@ -75,9 +93,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     // TODO: implement initState
     super.initState();
     DateTime timeNow = DateTime.now();
-    // print(DateFormat('yyyy-MM-dd').format(timeNow));
-
-    // print(shiftOrdersStream.toString());
 
     if (DateTime.now().hour > 12) //PM Shift
     {
@@ -114,7 +129,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         shift_orders = data;
                         List processedOrders =
                             processOrders(orders, data["orders"]);
-
+                        List sortedCurrentOrders =
+                            sortOrdersByTime(processedOrders);
                         return StreamBuilder<QuerySnapshot>(
                             stream: orderDriverStream,
                             builder: (BuildContext context,
@@ -134,6 +150,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
                                 List currentOrders = processCurrentOrders(
                                     orders, data, shift_orders["orders"]);
+
+                                // List sortedCurrentOrders =
+                                //     sortOrdersByTime(currentOrders);
 
                                 return SizedBox(
                                   height: MediaQuery.of(context).size.height,
@@ -158,13 +177,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                               int index) {
                                             var currentOrder =
                                                 currentOrders[index];
+
                                             print(currentOrder);
-                                            // return Container(
-                                            //     child: Text(
-                                            //         currentOrder.toString()));
+
                                             return InkWell(
                                               onTap: () {
                                                 showModalBottomSheet<void>(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                  ),
                                                   context: context,
                                                   builder:
                                                       (BuildContext context) {
@@ -194,8 +217,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                             Column(
                                                               children: [
                                                                 ElevatedButton(
-                                                                  child: const Text(
-                                                                      'Confirm Delivery'),
+                                                                  child:
+                                                                      SizedBox(
+                                                                    width: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width *
+                                                                        30 /
+                                                                        100,
+                                                                    child:
+                                                                        Center(
+                                                                      child: const Text(
+                                                                          'Confirm Delivery'),
+                                                                    ),
+                                                                  ),
                                                                   onPressed:
                                                                       () {
                                                                     db
@@ -232,8 +266,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                   },
                                                                 ),
                                                                 ElevatedButton(
-                                                                  child: const Text(
-                                                                      'Cancel Delivery'),
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .red,
+                                                                  ),
+                                                                  child:
+                                                                      SizedBox(
+                                                                    width: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width *
+                                                                        30 /
+                                                                        100,
+                                                                    child:
+                                                                        Center(
+                                                                      child: const Text(
+                                                                          'Cancel Delivery'),
+                                                                    ),
+                                                                  ),
                                                                   onPressed:
                                                                       () {
                                                                     db
@@ -258,24 +309,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                           onError: (e) =>
                                                                               print("Error updating document $e"),
                                                                         );
-                                                                    // db
-                                                                    //     .collection(
-                                                                    //         "order_driver")
-                                                                    //     .doc(currentOrder[
-                                                                    //         "orderId"])
-                                                                    //     .set({
-                                                                    //   "orderId":
-                                                                    //       currentOrder[
-                                                                    //           "orderId"],
-                                                                    //   "driverId": FirebaseAuth
-                                                                    //       .instance
-                                                                    //       .currentUser!
-                                                                    //       .uid,
-                                                                    //   "status":
-                                                                    //       0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                                    // }).onError((e,
-                                                                    //             _) =>
-                                                                    //         print("Error writing document: $e"));
 
                                                                     Navigator.of(
                                                                             context)
@@ -301,28 +334,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                 .height *
                                                             1 /
                                                             100),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(currentOrder[
-                                                            "orderId"]),
-                                                        Text(currentOrder[
-                                                            "timing"]),
-                                                        Text(currentOrder[
-                                                            "customerName"]),
-                                                        Text(currentOrder[
-                                                                        "customerAddress"]
-                                                                    .length >
-                                                                0
-                                                            ? currentOrder[
-                                                                "customerAddress"]
-                                                            : "No address"),
-                                                      ],
+                                                    child: ListTile(
+                                                      // Text(currentOrder[
+                                                      //     "orderId"]),
+                                                      title: Text(currentOrder[
+                                                          "timing"]),
+                                                      subtitle: Text(currentOrder[
+                                                                      "customerAddress"]
+                                                                  .length >
+                                                              0
+                                                          ? currentOrder[
+                                                              "customerAddress"]
+                                                          : "No address"),
                                                     ),
                                                   )),
                                             );
@@ -334,16 +357,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                               5 /
                                               100,
                                           child: Center(
-                                              child: Text("Avilable Orders"))),
+                                              child: Text("Available Orders"))),
                                       ListView.builder(
-                                        itemCount: processedOrders.length,
+                                        itemCount: sortedCurrentOrders.length,
                                         shrinkWrap: true,
                                         itemBuilder:
                                             (BuildContext context, int index) {
-                                          var order = processedOrders[index];
+                                          var order =
+                                              sortedCurrentOrders[index];
                                           return InkWell(
                                             onTap: () {
                                               showModalBottomSheet<void>(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
                                                 context: context,
                                                 builder:
                                                     (BuildContext context) {
@@ -424,25 +453,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                   .height *
                                                               1 /
                                                               100),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(order["orderId"]),
-                                                      Text(order["timing"]),
-                                                      Text(order[
-                                                          "customerName"]),
-                                                      Text(order["customerAddress"]
-                                                                  .length >
-                                                              0
-                                                          ? order[
-                                                              "customerAddress"]
-                                                          : "No address"),
-                                                    ],
+                                                  child: ListTile(
+                                                    title:
+                                                        Text(order["timing"]),
+                                                    // Text(order[
+                                                    //     "customerName"]),
+                                                    subtitle: Text(
+                                                        order["customerAddress"]
+                                                                    .length >
+                                                                0
+                                                            ? order[
+                                                                "customerAddress"]
+                                                            : "No address"),
                                                   ),
                                                 )),
                                           );
