@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:lsdip_driver/widgets/OrderDetailsTile.dart';
 
 class OrdersScreen extends StatefulWidget {
   OrdersScreen({required this.lat, required this.long, super.key});
@@ -156,320 +158,449 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
                                 return SizedBox(
                                   height: MediaQuery.of(context).size.height,
-                                  width: MediaQuery.of(context).size.width *
-                                      95 /
-                                      100,
+                                  width: MediaQuery.of(context).size.width,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Container(
-                                          height: MediaQuery.of(context)
+                                      Card(
+                                        color: Colors.blue.shade100,
+                                        child: Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                5 /
+                                                100,
+                                            child: Container(
+                                              width: MediaQuery.of(context)
                                                   .size
-                                                  .height *
-                                              5 /
-                                              100,
-                                          child: Center(
-                                              child: Text("Current Orders"))),
-                                      ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: currentOrders.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            var currentOrder =
-                                                currentOrders[index];
+                                                  .width,
+                                              child: Center(
+                                                  child: Text("Current Orders",
+                                                      style: TextStyle(
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height *
+                                                              2 /
+                                                              100,
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                            )),
+                                      ),
+                                      currentOrders.length < 1
+                                          ? Card(
+                                              elevation: 0,
+                                              child: SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      5 /
+                                                      100,
+                                                  child: Center(
+                                                      child: Text(
+                                                          "No Current Orders Found"))),
+                                            )
+                                          : ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: currentOrders.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                var currentOrder =
+                                                    currentOrders[index];
 
-                                            print(currentOrder);
+                                                print(currentOrder);
 
-                                            return InkWell(
-                                              onTap: () {
-                                                showModalBottomSheet<void>(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  ),
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return SizedBox(
-                                                      height:
-                                                          MediaQuery.of(context)
+                                                return InkWell(
+                                                  onTap: () {
+                                                    showModalBottomSheet<void>(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                      ),
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return SizedBox(
+                                                          height: MediaQuery.of(
+                                                                      context)
                                                                   .size
                                                                   .height *
                                                               80 /
                                                               100,
-                                                      child: Center(
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: <Widget>[
-                                                            Text(currentOrder[
-                                                                "orderId"]),
-                                                            Text(currentOrder[
-                                                                        "customerAddress"] ==
-                                                                    ""
-                                                                ? "No Address"
-                                                                : currentOrder[
-                                                                    "customerAddress"]),
-                                                            Column(
-                                                              children: [
-                                                                ElevatedButton(
-                                                                  child:
-                                                                      SizedBox(
-                                                                    width: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        30 /
-                                                                        100,
-                                                                    child:
-                                                                        Center(
-                                                                      child: const Text(
-                                                                          'Confirm Delivery'),
-                                                                    ),
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    db
-                                                                        .collection(
-                                                                            "orders")
-                                                                        .doc(currentOrder[
-                                                                            "orderId"])
-                                                                        .update({
-                                                                      "orderStatus":
-                                                                          "Delivered"
-                                                                    });
-                                                                    db
-                                                                        .collection(
-                                                                            "order_driver")
-                                                                        .doc(currentOrder[
-                                                                            "orderId"])
-                                                                        .set({
-                                                                      "orderId":
-                                                                          currentOrder[
-                                                                              "orderId"],
-                                                                      "driverId": FirebaseAuth
-                                                                          .instance
-                                                                          .currentUser!
-                                                                          .uid,
-                                                                      "status":
-                                                                          1 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                                    }).onError((e,
-                                                                                _) =>
-                                                                            print("Error writing document: $e"));
-
-                                                                    Navigator.of(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: <Widget>[
+                                                              SizedBox(
+                                                                height: MediaQuery.of(
                                                                             context)
-                                                                        .pop();
-                                                                  },
+                                                                        .size
+                                                                        .height *
+                                                                    8 /
+                                                                    100,
+                                                                child: Center(
+                                                                  child: Text(
+                                                                      "Order Details",
+                                                                      style: TextStyle(
+                                                                          fontSize: MediaQuery.of(context).size.height *
+                                                                              2 /
+                                                                              100,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)),
                                                                 ),
-                                                                ElevatedButton(
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .red,
-                                                                  ),
-                                                                  child:
-                                                                      SizedBox(
-                                                                    width: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        30 /
-                                                                        100,
+                                                              ),
+                                                              OrderDetailsTile(
+                                                                  title:
+                                                                      "Address",
+                                                                  value: (currentOrder[
+                                                                              "customerAddress"] ==
+                                                                          ""
+                                                                      ? "No Address"
+                                                                      : currentOrder[
+                                                                          "customerAddress"])),
+                                                              OrderDetailsTile(
+                                                                  title:
+                                                                      "Order ID",
+                                                                  value: (currentOrder[
+                                                                      "orderId"])),
+                                                              OrderDetailsTile(
+                                                                  title: "Time",
+                                                                  value: (currentOrder[
+                                                                      "timing"])),
+                                                              SizedBox(
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height *
+                                                                      2.5 /
+                                                                      100),
+                                                              Column(
+                                                                children: [
+                                                                  ElevatedButton(
                                                                     child:
-                                                                        Center(
-                                                                      child: const Text(
-                                                                          'Cancel Delivery'),
+                                                                        SizedBox(
+                                                                      width: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          30 /
+                                                                          100,
+                                                                      child:
+                                                                          Center(
+                                                                        child: const Text(
+                                                                            'Confirm Delivery'),
+                                                                      ),
                                                                     ),
+                                                                    onPressed:
+                                                                        () {
+                                                                      db
+                                                                          .collection(
+                                                                              "orders")
+                                                                          .doc(currentOrder[
+                                                                              "orderId"])
+                                                                          .update({
+                                                                        "orderStatus":
+                                                                            "Delivered"
+                                                                      });
+                                                                      db
+                                                                          .collection(
+                                                                              "order_driver")
+                                                                          .doc(currentOrder[
+                                                                              "orderId"])
+                                                                          .set({
+                                                                        "orderId":
+                                                                            currentOrder["orderId"],
+                                                                        "driverId": FirebaseAuth
+                                                                            .instance
+                                                                            .currentUser!
+                                                                            .uid,
+                                                                        "status":
+                                                                            1 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                                      }).onError((e, _) =>
+                                                                              print("Error writing document: $e"));
+
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
                                                                   ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    db
-                                                                        .collection(
-                                                                            "orders")
-                                                                        .doc(currentOrder[
-                                                                            "orderId"])
-                                                                        .update({
-                                                                      "orderStatus":
-                                                                          "Pending Delivery"
-                                                                    });
+                                                                  ElevatedButton(
+                                                                    style: ElevatedButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .red,
+                                                                    ),
+                                                                    child:
+                                                                        SizedBox(
+                                                                      width: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          30 /
+                                                                          100,
+                                                                      child:
+                                                                          Center(
+                                                                        child: const Text(
+                                                                            'Cancel Delivery'),
+                                                                      ),
+                                                                    ),
+                                                                    onPressed:
+                                                                        () {
+                                                                      db
+                                                                          .collection(
+                                                                              "orders")
+                                                                          .doc(currentOrder[
+                                                                              "orderId"])
+                                                                          .update({
+                                                                        "orderStatus":
+                                                                            "Pending Delivery"
+                                                                      });
 
-                                                                    db
-                                                                        .collection(
-                                                                            "order_driver")
-                                                                        .doc(currentOrder[
-                                                                            "orderId"])
-                                                                        .delete()
-                                                                        .then(
-                                                                          (doc) =>
-                                                                              print("Document deleted"),
-                                                                          onError: (e) =>
-                                                                              print("Error updating document $e"),
-                                                                        );
+                                                                      db
+                                                                          .collection(
+                                                                              "order_driver")
+                                                                          .doc(currentOrder[
+                                                                              "orderId"])
+                                                                          .delete()
+                                                                          .then(
+                                                                            (doc) =>
+                                                                                print("Document deleted"),
+                                                                            onError: (e) =>
+                                                                                print("Error updating document $e"),
+                                                                          );
 
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                  },
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
                                                     );
                                                   },
+                                                  child: Card(
+                                                      elevation: 1,
+                                                      child: Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                            vertical: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                1 /
+                                                                100),
+                                                        child: ListTile(
+                                                          // Text(currentOrder[
+                                                          //     "orderId"]),
+                                                          title: Text(
+                                                              currentOrder[
+                                                                  "timing"]),
+                                                          subtitle: Text(currentOrder[
+                                                                          "customerAddress"]
+                                                                      .length >
+                                                                  0
+                                                              ? currentOrder[
+                                                                  "customerAddress"]
+                                                              : "No address"),
+                                                        ),
+                                                      )),
                                                 );
-                                              },
-                                              child: Card(
-                                                  elevation: 1,
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(
-                                                        vertical: MediaQuery.of(
+                                              }),
+                                      Card(
+                                        color: Colors.teal.shade100,
+                                        child: Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                5 /
+                                                100,
+                                            child: Center(
+                                                child: Text("Available Orders",
+                                                    style: TextStyle(
+                                                        fontSize: MediaQuery.of(
                                                                     context)
                                                                 .size
                                                                 .height *
-                                                            1 /
-                                                            100),
-                                                    child: ListTile(
-                                                      // Text(currentOrder[
-                                                      //     "orderId"]),
-                                                      title: Text(currentOrder[
-                                                          "timing"]),
-                                                      subtitle: Text(currentOrder[
-                                                                      "customerAddress"]
-                                                                  .length >
-                                                              0
-                                                          ? currentOrder[
-                                                              "customerAddress"]
-                                                          : "No address"),
-                                                    ),
-                                                  )),
-                                            );
-                                          }),
-                                      Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              5 /
-                                              100,
-                                          child: Center(
-                                              child: Text("Available Orders"))),
-                                      ListView.builder(
-                                        itemCount: sortedCurrentOrders.length,
-                                        shrinkWrap: true,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          var order =
-                                              sortedCurrentOrders[index];
-                                          return InkWell(
-                                            onTap: () {
-                                              showModalBottomSheet<void>(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return SizedBox(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            80 /
+                                                            2 /
                                                             100,
-                                                    child: Center(
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: <Widget>[
-                                                          Text(
-                                                              order["orderId"]),
-                                                          Text(order["customerAddress"] ==
-                                                                  ""
-                                                              ? "No Address"
-                                                              : order[
-                                                                  "customerAddress"]),
-                                                          ElevatedButton(
-                                                            child: const Text(
-                                                                'Select order'),
-                                                            onPressed: () {
-                                                              db
-                                                                  .collection(
-                                                                      "orders")
-                                                                  .doc(order[
-                                                                      "orderId"])
-                                                                  .update({
-                                                                "orderStatus":
-                                                                    "Out for Delivery"
-                                                              });
-                                                              db
-                                                                  .collection(
-                                                                      "order_driver")
-                                                                  .doc(order[
-                                                                      "orderId"])
-                                                                  .set({
-                                                                "orderId": order[
-                                                                    "orderId"],
-                                                                "driverId":
-                                                                    FirebaseAuth
+                                                        fontWeight:
+                                                            FontWeight.bold)))),
+                                      ),
+                                      processedOrders.length < 1
+                                          ? Card(
+                                              elevation: 0,
+                                              child: SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      5 /
+                                                      100,
+                                                  child: Center(
+                                                      child: Text(
+                                                          "No Orders Found"))),
+                                            )
+                                          : ListView.builder(
+                                              itemCount:
+                                                  sortedCurrentOrders.length,
+                                              shrinkWrap: true,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                var order =
+                                                    sortedCurrentOrders[index];
+                                                return InkWell(
+                                                  onTap: () {
+                                                    showModalBottomSheet<void>(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                      ),
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height *
+                                                              80 /
+                                                              100,
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: <Widget>[
+                                                              SizedBox(
+                                                                height: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height *
+                                                                    8 /
+                                                                    100,
+                                                                child: Center(
+                                                                  child: Text(
+                                                                      "Order Details",
+                                                                      style: TextStyle(
+                                                                          fontSize: MediaQuery.of(context).size.height *
+                                                                              2 /
+                                                                              100,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)),
+                                                                ),
+                                                              ),
+                                                              OrderDetailsTile(
+                                                                  title:
+                                                                      "Address",
+                                                                  value: (order[
+                                                                              "customerAddress"] ==
+                                                                          ""
+                                                                      ? "No Address"
+                                                                      : order[
+                                                                          "customerAddress"])),
+                                                              OrderDetailsTile(
+                                                                  title:
+                                                                      "Order ID",
+                                                                  value: (order[
+                                                                      "orderId"])),
+                                                              OrderDetailsTile(
+                                                                  title: "Time",
+                                                                  value: (order[
+                                                                      "timing"])),
+                                                              SizedBox(
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height *
+                                                                      2.5 /
+                                                                      100),
+                                                              ElevatedButton(
+                                                                child: const Text(
+                                                                    'Select order'),
+                                                                onPressed: () {
+                                                                  db
+                                                                      .collection(
+                                                                          "orders")
+                                                                      .doc(order[
+                                                                          "orderId"])
+                                                                      .update({
+                                                                    "orderStatus":
+                                                                        "Out for Delivery"
+                                                                  });
+                                                                  db
+                                                                      .collection(
+                                                                          "order_driver")
+                                                                      .doc(order[
+                                                                          "orderId"])
+                                                                      .set({
+                                                                    "orderId":
+                                                                        order[
+                                                                            "orderId"],
+                                                                    "driverId": FirebaseAuth
                                                                         .instance
                                                                         .currentUser!
                                                                         .uid,
-                                                                "status":
-                                                                    0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                              }).onError((e,
-                                                                          _) =>
-                                                                      print(
-                                                                          "Error writing document: $e"));
+                                                                    "status":
+                                                                        0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                                                                  }).onError((e,
+                                                                              _) =>
+                                                                          print(
+                                                                              "Error writing document: $e"));
 
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: Card(
-                                                elevation: 1,
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              1 /
-                                                              100),
-                                                  child: ListTile(
-                                                    title:
-                                                        Text(order["timing"]),
-                                                    // Text(order[
-                                                    //     "customerName"]),
-                                                    subtitle: Text(
-                                                        order["customerAddress"]
-                                                                    .length >
-                                                                0
-                                                            ? order[
-                                                                "customerAddress"]
-                                                            : "No address"),
-                                                  ),
-                                                )),
-                                          );
-                                        },
-                                      ),
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Card(
+                                                      elevation: 1,
+                                                      child: Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                            vertical: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                1 /
+                                                                100),
+                                                        child: ListTile(
+                                                          title: Text(
+                                                              order["timing"]),
+                                                          // Text(order[
+                                                          //     "customerName"]),
+                                                          subtitle: Text(order[
+                                                                          "customerAddress"]
+                                                                      .length >
+                                                                  0
+                                                              ? order[
+                                                                  "customerAddress"]
+                                                              : "No address"),
+                                                        ),
+                                                      )),
+                                                );
+                                              },
+                                            ),
                                     ],
                                   ),
                                 );

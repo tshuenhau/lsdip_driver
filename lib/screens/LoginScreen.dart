@@ -82,21 +82,22 @@ class _LoginScreenState extends State<LoginScreen> {
               height: MediaQuery.of(context).size.height * 5 / 100,
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 65 / 100,
+              width: MediaQuery.of(context).size.width * 75 / 100,
               child: TextFormField(
                 decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     border: InputBorder.none,
                     hintText: 'Username',
                     enabledBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(width: 3, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(15),
+                          const BorderSide(width: 2, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     // Set border for focused state
                     focusedBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(width: 3, color: Colors.blue),
-                      borderRadius: BorderRadius.circular(15),
+                          const BorderSide(width: 2, color: Colors.blue),
+                      borderRadius: BorderRadius.circular(10),
                     )),
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
@@ -116,8 +117,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   // doSubmit();
                 },
                 onFieldSubmitted: (e) async {
-                  print("E" + e.toString());
-
                   doSubmit();
                 },
               ),
@@ -126,21 +125,22 @@ class _LoginScreenState extends State<LoginScreen> {
               height: MediaQuery.of(context).size.height * 2 / 100,
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 65 / 100,
+              width: MediaQuery.of(context).size.width * 75 / 100,
               child: TextFormField(
                 decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     border: InputBorder.none,
-                    hintText: 'Username',
+                    hintText: 'Password',
                     enabledBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(width: 3, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(15),
+                          const BorderSide(width: 2, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     // Set border for focused state
                     focusedBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(width: 3, color: Colors.blue),
-                      borderRadius: BorderRadius.circular(15),
+                          const BorderSide(width: 2, color: Colors.blue),
+                      borderRadius: BorderRadius.circular(10),
                     )),
                 obscureText: true,
                 textAlign: TextAlign.center,
@@ -174,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   doSubmit();
                 },
                 child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 55 / 100,
+                    width: MediaQuery.of(context).size.width * 65 / 100,
                     child: Center(child: Text('Login'))),
               ),
             ),
