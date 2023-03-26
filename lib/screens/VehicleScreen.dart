@@ -59,7 +59,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Card(
-                      color: Colors.blue.shade100,
+                      color: Colors.amberAccent.shade100,
                       child: Container(
                           height: MediaQuery.of(context).size.height * 5 / 100,
                           child: Container(
