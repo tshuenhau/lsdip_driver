@@ -38,7 +38,7 @@ class _AppState extends State<App> {
 
   void checkVehicleAllocated() async {
     await vehiclesReference
-        .where("driver", isEqualTo: "uVFBqDsvd1bLeTepG6p1KlqpJ9g2")
+        .where("driver", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((querySnapshot) {
       for (var docSnapshot in querySnapshot.docs) {
