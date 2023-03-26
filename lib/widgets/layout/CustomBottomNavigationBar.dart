@@ -51,11 +51,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             backgroundColor: Colors.white,
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.local_shipping),
+                icon: Icon(Icons.inventory),
                 label: 'Orders',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.people),
+                icon: Icon(Icons.local_shipping),
                 label: 'Vehicle',
               ),
               // BottomNavigationBarItem(

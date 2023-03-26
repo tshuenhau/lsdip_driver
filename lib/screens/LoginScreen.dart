@@ -17,7 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
   String? email;
   final _formKey = GlobalKey<FormState>();
   FirebaseFirestore db = FirebaseFirestore.instance;
-
+  CollectionReference usersReference =
+      FirebaseFirestore.instance.collection('users');
   @override
   void initState() {
     // TODO: implement initState
@@ -35,13 +36,44 @@ class _LoginScreenState extends State<LoginScreen> {
               content: Text('Logging in...'),
               duration: const Duration(milliseconds: 600)),
         );
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          //TODO: Replace with creating firebase doc and saving it
-// Here you can write your code
+        final userRef =
+            usersReference.doc(FirebaseAuth.instance.currentUser?.uid);
 
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SelectVehicleScreen()));
-        });
+        userRef.get().then(
+          (DocumentSnapshot doc) {
+            if (doc.data() == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text('User not found...'),
+                    duration: const Duration(milliseconds: 900)),
+              );
+
+              // throw FirebaseAuthException(code: 'user-not-found');
+            } else {
+              final data = doc.data() as Map<String, dynamic>;
+              if (data["role"] == "Driver") {
+                Future.delayed(const Duration(milliseconds: 1200), () {
+                  // Here you can write your code
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SelectVehicleScreen()));
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text('User is not a driver...'),
+                      duration: const Duration(milliseconds: 900)),
+                );
+              }
+            }
+
+            // ...
+          },
+          onError: (e) => print("Error getting document: $e"),
+        );
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -71,115 +103,168 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Stack(
+          alignment: AlignmentDirectional.center,
           children: [
-            Text("Please Login:"),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 5 / 100,
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 75 / 100,
-              child: TextFormField(
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    border: InputBorder.none,
-                    hintText: 'Username',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 2, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // Set border for focused state
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 2, color: Colors.blue),
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.emailAddress,
-                // The validator receives the text that the user has entered.
-                onChanged: (val) {
-                  if (val.length > 0) {
-                    setState(() {
-                      email = val;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (!EmailValidator.validate(value!)) {
-                    return 'Please enter a valid email address';
-                  }
-                  return null;
-                  // doSubmit();
-                },
-                onFieldSubmitted: (e) async {
-                  doSubmit();
-                },
+            Positioned(
+              top: 0,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 40 / 100,
+                width: MediaQuery.of(context).size.width,
+                child: FittedBox(
+                    child: Image.asset("assets/images/backImage.jpg"),
+                    fit: BoxFit.cover),
+                // decoration: const BoxDecoration(
+                //     image: DecorationImage(
+                //         image: AssetImage("assets/images/backImage.jpg"))),
               ),
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 2 / 100,
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 75 / 100,
-              child: TextFormField(
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    border: InputBorder.none,
-                    hintText: 'Password',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 2, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // Set border for focused state
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 2, color: Colors.blue),
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-                obscureText: true,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.visiblePassword,
-                // The validator receives the text that the user has entered.
-                onChanged: (val) {
-                  if (val.length > 0) {
-                    setState(() {
-                      password = val;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password cannot be empty';
-                  }
-                  return null;
-                  // doSubmit();
-                },
-                onFieldSubmitted: (e) async {
-                  print("E" + e.toString());
+            Positioned(
+              bottom: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(30),
+                  ),
+                ),
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 65 / 100,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5 / 100,
+                      ),
+                      Text("Log In",
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 7 / 100,
+                              fontWeight: FontWeight.bold)),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5 / 100,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 75 / 100,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 0),
+                              border: InputBorder.none,
+                              hintText: 'Username',
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 2, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // Set border for focused state
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 2, color: Colors.blue),
+                                borderRadius: BorderRadius.circular(10),
+                              )),
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.emailAddress,
+                          // The validator receives the text that the user has entered.
+                          onChanged: (val) {
+                            if (val.length > 0) {
+                              setState(() {
+                                email = val;
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (!EmailValidator.validate(value!)) {
+                              return 'Please enter a valid email address';
+                            }
+                            return null;
+                            // doSubmit();
+                          },
+                          onFieldSubmitted: (e) async {
+                            doSubmit();
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 2 / 100,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 75 / 100,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 0),
+                              border: InputBorder.none,
+                              hintText: 'Password',
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 2, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // Set border for focused state
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 2, color: Colors.blue),
+                                borderRadius: BorderRadius.circular(10),
+                              )),
+                          obscureText: true,
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.visiblePassword,
+                          // The validator receives the text that the user has entered.
+                          onChanged: (val) {
+                            if (val.length > 0) {
+                              setState(() {
+                                password = val;
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password cannot be empty';
+                            }
+                            return null;
+                            // doSubmit();
+                          },
+                          onFieldSubmitted: (e) async {
+                            print("E" + e.toString());
 
-                  doSubmit();
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  doSubmit();
-                },
-                child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 65 / 100,
-                    child: Center(child: Text('Login'))),
+                            doSubmit();
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadiusDirectional.circular(8))),
+                          onPressed: () async {
+                            doSubmit();
+                          },
+                          child: SizedBox(
+                              width:
+                                  MediaQuery.of(context).size.width * 66 / 100,
+                              height:
+                                  MediaQuery.of(context).size.height * 5 / 100,
+                              child: Center(child: Text('Login'))),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
-        )),
+        ),
       ),
     );
   }
