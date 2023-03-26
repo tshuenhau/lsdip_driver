@@ -90,7 +90,6 @@ class _HomescreenState extends State<Homescreen> {
   @override
   initState() {
     super.initState();
-
     _pageController = PageController();
     initializeLocation();
 

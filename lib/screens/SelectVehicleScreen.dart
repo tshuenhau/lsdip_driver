@@ -33,19 +33,16 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
   @override
   void dispose() {
     super.dispose();
-
     doSelectVehicle();
-
     dropdownValue = "";
   }
 
+  bool selected = false;
   String dropdownValue = "";
   var setDefaultValue = true;
 
   @override
   Widget build(BuildContext context) {
-    print(
-        FirebaseAuth.instance.currentUser!.displayName.toString() + " hewrewt");
     void doSubmit() {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -64,93 +61,140 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
 
     // print(dropdownValue);
     return Scaffold(
-      body: Container(
-          child: Center(
-              child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Select your vehicle:"),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 5 / 100,
-            width: MediaQuery.of(context).size.height * 5 / 100,
-          ),
-          StreamBuilder(
-              stream: vehicleStream,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasError) {
-                  return Text(snapshot.error.toString());
-                }
-                if (snapshot.connectionState == ConnectionState.active) {
-                  QuerySnapshot querySnapshot = snapshot.data;
-                  List<QueryDocumentSnapshot> listQueryDocumentSnapshot =
-                      querySnapshot.docs;
-
-                  List<QueryDocumentSnapshot> vehicles =
-                      listQueryDocumentSnapshot
-                          .where((element) =>
-                              element["vehicleStatus"] == "Inactive")
-                          .toList();
-
-                  if (setDefaultValue && vehicles.length > 0) {
-                    dropdownValue = vehicles[0]
-                        .id; //TODO: Default value needs to be fixed, if the default value changes vehicle status the app crashes
-                  } else if (vehicles.length < 1) {
-                    dropdownValue = "";
-                  }
-
-                  return DropdownButton<String>(
-                    value: dropdownValue,
-                    disabledHint: Text("None Available"),
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
+      body: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              Positioned(
+                top: 0,
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 40 / 100,
+                  width: MediaQuery.of(context).size.width,
+                  child: FittedBox(
+                      child: Image.asset("assets/images/fleet2.jpeg"),
+                      fit: BoxFit.cover),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(30),
+                      topLeft: Radius.circular(30),
                     ),
-                    onChanged: (String? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        dropdownValue = value!;
-                        setDefaultValue = false;
-                      });
-                    },
-                    items: vehicles.isEmpty
-                        ? null
-                        : vehicles.map<DropdownMenuItem<String>>((document) {
-                            return DropdownMenuItem<String>(
-                              value: document.id,
-                              child: Text(document['numberPlate']),
-                            );
-                          }).toList(),
-                  );
-                }
-                return const Center(
-                    child: SizedBox(child: CircularProgressIndicator()));
-              }),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 5 / 100,
-            width: MediaQuery.of(context).size.height * 5 / 100,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                if (dropdownValue.isNotEmpty) {
-                  var vehicleId = dropdownValue;
-                  if (!mounted) return;
+                  ),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 65 / 100,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 5 / 100),
+                      Text("Select your Vehicle",
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 6 / 100,
+                              fontWeight: FontWeight.bold)),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5 / 100,
+                        width: MediaQuery.of(context).size.height * 5 / 100,
+                      ),
+                      StreamBuilder(
+                          stream: vehicleStream,
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.hasError) {
+                              return Text(snapshot.error.toString());
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.active) {
+                              QuerySnapshot querySnapshot = snapshot.data;
+                              List<QueryDocumentSnapshot>
+                                  listQueryDocumentSnapshot =
+                                  querySnapshot.docs;
 
-                  //TODO: Might need to put a loading page
+                              List<QueryDocumentSnapshot> vehicles =
+                                  listQueryDocumentSnapshot
+                                      .where((element) =>
+                                          element["vehicleStatus"] ==
+                                          "Inactive")
+                                      .toList();
 
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Homescreen(
-                                vehicleId: vehicleId,
-                              )));
-                }
-              },
-              child: Text("Continue"))
-        ],
-      ))),
+                              if (setDefaultValue && vehicles.length > 0) {
+                                dropdownValue = vehicles[0]
+                                    .id; //TODO: Default value needs to be fixed, if the default value changes vehicle status the app crashes
+                              } else if (vehicles.length < 1) {
+                                dropdownValue = "";
+                              }
+
+                              return DropdownButton<String>(
+                                value: dropdownValue,
+                                disabledHint: Text("None Available"),
+                                icon: const Icon(Icons.arrow_downward),
+                                elevation: 16,
+                                style:
+                                    const TextStyle(color: Colors.deepPurple),
+                                underline: Container(
+                                  height: 2,
+                                  color: Colors.deepPurpleAccent,
+                                ),
+                                onChanged: (String? value) {
+                                  // This is called when the user selects an item.
+                                  setState(() {
+                                    dropdownValue = value!;
+                                    setDefaultValue = false;
+                                  });
+                                },
+                                items: (vehicles.isEmpty || selected)
+                                    ? null
+                                    : vehicles.map<DropdownMenuItem<String>>(
+                                        (document) {
+                                        return DropdownMenuItem<String>(
+                                          value: document.id,
+                                          child: Text(document['numberPlate']),
+                                        );
+                                      }).toList(),
+                              );
+                            }
+                            return const Center(
+                                child: SizedBox(
+                                    child: CircularProgressIndicator()));
+                          }),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5 / 100,
+                        width: MediaQuery.of(context).size.height * 5 / 100,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            if (dropdownValue.isNotEmpty) {
+                              setState(() {
+                                selected = true;
+                              });
+                              var vehicleId = dropdownValue;
+                              if (!mounted) return;
+                              //TODO: Might need to put a loading page
+                              // await doSelectVehicle();
+
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Homescreen(
+                                            vehicleId: vehicleId,
+                                          )));
+                            }
+                          },
+                          child: Text("Continue"))
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 
