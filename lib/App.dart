@@ -7,7 +7,9 @@ import 'package:lsdip_driver/screens/LoginScreen.dart';
 import 'package:lsdip_driver/screens/SelectVehicleScreen.dart';
 import 'package:lsdip_driver/screens/Start.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lsdip_driver/widgets/OrderScanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -76,16 +78,6 @@ class _AppState extends State<App> {
       }
     });
     return Scaffold(
-        floatingActionButton: Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 3 / 100),
-          child: FloatingActionButton(
-            elevation: 4.0,
-            child: const Icon(Icons.add),
-            onPressed: () {},
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         body: Center(
             child: StreamBuilder(
                 stream: FirebaseAuth.instance.authStateChanges(),

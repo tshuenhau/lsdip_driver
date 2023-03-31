@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:lsdip_driver/screens/OrdersScreen.dart';
 import 'package:lsdip_driver/screens/VehicleScreen.dart';
+import 'package:lsdip_driver/widgets/OrderScanner.dart';
 import 'package:lsdip_driver/widgets/layout/CustomBottomNavigationBar.dart';
 import 'package:lsdip_driver/widgets/layout/CustomPageView.dart';
 import 'dart:math' show cos, sqrt, asin;
@@ -158,6 +159,21 @@ class _HomescreenState extends State<Homescreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text("Driver"), automaticallyImplyLeading: false),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 3 / 100),
+        child: FloatingActionButton(
+          elevation: 4.0,
+          child: const Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => OrderScanner()),
+            );
+          },
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: CustomPageView(
         navScreens: _navScreens,
         pageController: _pageController,
