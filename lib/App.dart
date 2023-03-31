@@ -76,6 +76,16 @@ class _AppState extends State<App> {
       }
     });
     return Scaffold(
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 3 / 100),
+          child: FloatingActionButton(
+            elevation: 4.0,
+            child: const Icon(Icons.add),
+            onPressed: () {},
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         body: Center(
             child: StreamBuilder(
                 stream: FirebaseAuth.instance.authStateChanges(),
