@@ -6,20 +6,29 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:lsdip_driver/utilities/OrderService.dart';
 import 'package:lsdip_driver/widgets/OrderDetailsTile.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 class OrdersScreen extends StatefulWidget {
-  OrdersScreen({required this.lat, required this.long, super.key});
+  OrdersScreen(
+      {required this.outletId,
+      required this.lat,
+      required this.long,
+      super.key});
   double lat;
   double long;
+  String outletId;
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
+  List availableOrders = [];
+
   FirebaseFirestore db = FirebaseFirestore.instance;
   // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String time = "2023-04-19";
+  String time = "2023-05-26";
 
   late Stream<DocumentSnapshot> shiftOrdersStream =
       db.collection("shift_orders").doc(time).snapshots();
@@ -29,66 +38,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
       db.collection("order_driver").snapshots();
 
   // shiftOrdersStream = db.collection("shift_orders").doc(time).snapshots();
-  List processCurrentOrders(List orders, var orderDrivers, var shiftOrders) {
-    //TODO: Need to sort by time
-
-    List result = [];
-    for (var order in orders) {
-      for (var shiftOrder in shiftOrders) {
-        for (var orderDriver in orderDrivers) {
-          if (orderDriver["driverId"] ==
-                  FirebaseAuth.instance.currentUser!.uid &&
-              order["orderStatus"] == "Out for Delivery" &&
-              shiftOrder["id"] == order["orderId"] &&
-              orderDriver["orderId"] == order["orderId"]) {
-            order["timing"] = shiftOrder["timing"];
-            result.add(order);
-            // print("YESSSSSSSSSSSSSSSSSS");
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  List sortOrdersByTime(List orders) {
-    List result = [];
-
-    for (var order in orders) {
-      DateTime startTime = DateFormat("HH:mm")
-          .parse(order["timing"].replaceAll(' ', '').split("-")[0]);
-      DateTime endTime = DateFormat("HH:mm")
-          .parse(order["timing"].replaceAll(' ', '').split("-")[1]);
-      order["startTime"] = startTime;
-      order["endTime"] = endTime;
-      result.add(order);
-      print("start Time: " + order["startTime"].toString());
-    }
-
-    result.sort((a, b) => a["startTime"].compareTo(b["startTime"]));
-    print(result);
-    return result;
-  }
-
-  List processOrders(List orders, var shiftOrders) {
-    List result = [];
-
-    print(shiftOrders.toString());
-
-    //TODO: Need to sort by time
-
-    for (var order in orders) {
-      for (var shiftOrder in shiftOrders) {
-        if (shiftOrder["id"] == order["orderId"] &&
-            order["orderStatus"] == "Pending Delivery") {
-          order["timing"] = shiftOrder["timing"];
-          result.add(order);
-        }
-      }
-    }
-    return result;
-  }
 
   @override
   void initState() {
@@ -103,6 +52,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("OUTLET: " + widget.outletId.toString());
     return Center(
         child: StreamBuilder<QuerySnapshot>(
             stream: ordersStream,
@@ -126,13 +76,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     builder: (BuildContext context,
                         AsyncSnapshot<DocumentSnapshot> snapshot) {
                       var shift_orders;
+
                       if (snapshot.connectionState == ConnectionState.active) {
                         var data = snapshot.data as DocumentSnapshot;
                         shift_orders = data;
-                        List processedOrders =
-                            processOrders(orders, data["orders"]);
-                        List sortedCurrentOrders =
-                            sortOrdersByTime(processedOrders);
+                        List processedOrders = OrderService()
+                            .processOrders(orders, data, widget.outletId);
+                        List sortedAvailableOrders =
+                            OrderService().sortOrdersByTime(processedOrders);
+
                         return StreamBuilder<QuerySnapshot>(
                             stream: orderDriverStream,
                             builder: (BuildContext context,
@@ -150,8 +102,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   return data;
                                 }).toList();
 
-                                List currentOrders = processCurrentOrders(
-                                    orders, data, shift_orders["orders"]);
+                                List currentOrders = OrderService()
+                                    .processCurrentOrders(
+                                        orders, data, shift_orders);
 
                                 // List sortedCurrentOrders =
                                 //     sortOrdersByTime(currentOrders);
@@ -176,7 +129,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                   .size
                                                   .width,
                                               child: Center(
-                                                  child: Text("Current Orders",
+                                                  child: Text(
+                                                      "My Orders (" +
+                                                          currentOrders.length
+                                                              .toString() +
+                                                          ")",
                                                       style: TextStyle(
                                                           fontSize: MediaQuery.of(
                                                                       context)
@@ -301,6 +258,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                 Column(
                                                                   children: [
                                                                     ElevatedButton(
+                                                                      style: ElevatedButton
+                                                                          .styleFrom(
+                                                                        backgroundColor:
+                                                                            Colors.green,
+                                                                      ),
+                                                                      child:
+                                                                          SizedBox(
+                                                                        width: MediaQuery.of(context).size.width *
+                                                                            30 /
+                                                                            100,
+                                                                        child:
+                                                                            Center(
+                                                                          child:
+                                                                              const Text('Navigate'),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed:
+                                                                          () {
+                                                                        MapsLauncher.launchQuery(
+                                                                            currentOrder["customerAddress"]);
+                                                                      },
+                                                                    ),
+                                                                    ElevatedButton(
                                                                       child:
                                                                           SizedBox(
                                                                         width: MediaQuery.of(context).size.width *
@@ -370,7 +350,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                                 "orderId"])
                                                                             .update({
                                                                           "orderStatus":
-                                                                              "Pending Delivery"
+                                                                              "Back from Wash"
                                                                         });
 
                                                                         db
@@ -432,7 +412,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                 5 /
                                                 100,
                                             child: Center(
-                                                child: Text("Available Orders",
+                                                child: Text(
+                                                    "Available Orders (" +
+                                                        sortedAvailableOrders
+                                                            .length
+                                                            .toString() +
+                                                        ")",
                                                     style: TextStyle(
                                                         fontSize: MediaQuery.of(
                                                                     context)
@@ -458,13 +443,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             )
                                           : ListView.builder(
                                               itemCount:
-                                                  sortedCurrentOrders.length,
+                                                  sortedAvailableOrders.length,
                                               shrinkWrap: true,
                                               itemBuilder:
                                                   (BuildContext context,
                                                       int index) {
                                                 var order =
-                                                    sortedCurrentOrders[index];
+                                                    sortedAvailableOrders[
+                                                        index];
                                                 return InkWell(
                                                   onTap: () {
                                                     showModalBottomSheet<void>(
@@ -553,53 +539,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                             .height *
                                                                         2.5 /
                                                                         100),
-                                                                ElevatedButton(
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .green,
-                                                                  ),
-                                                                  child: Text(
-                                                                      'Select order',
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              Colors.white)),
-                                                                  onPressed:
-                                                                      () {
-                                                                    db
-                                                                        .collection(
-                                                                            "orders")
-                                                                        .doc(order[
-                                                                            "orderId"])
-                                                                        .update({
-                                                                      "orderStatus":
-                                                                          "Out for Delivery"
-                                                                    });
-                                                                    db
-                                                                        .collection(
-                                                                            "order_driver")
-                                                                        .doc(order[
-                                                                            "orderId"])
-                                                                        .set({
-                                                                      "orderId":
-                                                                          order[
-                                                                              "orderId"],
-                                                                      "driverId": FirebaseAuth
-                                                                          .instance
-                                                                          .currentUser!
-                                                                          .uid,
-                                                                      "status":
-                                                                          0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                                                                    }).onError((e,
-                                                                                _) =>
-                                                                            print("Error writing document: $e"));
-
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                  },
-                                                                ),
                                                               ],
                                                             ),
                                                           ),
