@@ -28,7 +28,7 @@ class _AppState extends State<App> {
   String vehicleId = "";
 
   void permissionHandler() async {
-    if (!await Permission.location.request().isGranted) {
+    if (await Permission.location.isDenied) {
       // Either the permission was already granted before or the user just granted it.
       Map<Permission, PermissionStatus> statuses = await [
         Permission.location,
@@ -44,7 +44,6 @@ class _AppState extends State<App> {
         .get()
         .then((querySnapshot) {
       for (var docSnapshot in querySnapshot.docs) {
-        print(docSnapshot.id);
         setState(() {
           vehicleId = docSnapshot.id;
         });
@@ -56,7 +55,7 @@ class _AppState extends State<App> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    permissionHandler();
     checkVehicleAllocated();
 
     // permissionHandler();
