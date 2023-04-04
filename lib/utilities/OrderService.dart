@@ -63,7 +63,7 @@ class OrderService {
 
           for (var deliveryId in selectedTime["orders"]) {
             if (deliveryId == order["orderId"] &&
-                order["orderStatus"] != "Out for Delivery" &&
+                order["orderStatus"] == "Pending Delivery" &&
                 order["outletId"] == outletId) {
               order["timing"] = selectedTime["time"];
               order["deliveryDate"] = shiftOrder["date"];

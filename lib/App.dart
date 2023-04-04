@@ -28,12 +28,11 @@ class _AppState extends State<App> {
   String vehicleId = "";
 
   void permissionHandler() async {
-    if (await Permission.location.isDenied) {
-      // Either the permission was already granted before or the user just granted it.
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.location,
-      ].request();
-    }
+    // Either the permission was already granted before or the user just granted it.
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.location,
+    ].request();
 
 // You can request multiple permissions at once.
   }

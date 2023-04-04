@@ -214,7 +214,7 @@ class _HomescreenState extends State<Homescreen> {
     // }
     // print(totalDistance);
     List<Widget> _navScreens = [
-      OrdersScreen(lat: lat, long: long),
+      OrdersScreen(lat: lat, long: long, outletId: outletId),
       VehicleScreen(vehicleId: widget.vehicleId)
     ];
 

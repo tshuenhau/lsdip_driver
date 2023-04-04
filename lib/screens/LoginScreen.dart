@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 65 / 100,
+                height: MediaQuery.of(context).size.height * 63 / 100,
                 child: Form(
                   key: _formKey,
                   child: Column(
