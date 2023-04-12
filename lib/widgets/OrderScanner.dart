@@ -5,11 +5,45 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:lsdip_driver/widgets/OrderDetailsScreen.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart'
+    as PermissionHandler;
 
-class OrderScanner extends StatelessWidget {
+class OrderScanner extends StatefulWidget {
   OrderScanner({super.key});
+
+  @override
+  State<OrderScanner> createState() => _OrderScannerState();
+}
+
+class _OrderScannerState extends State<OrderScanner> {
   MobileScannerController cameraController =
       MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
+
+  void checkPermission() async {
+    var status = await PermissionHandler.Permission.camera.request();
+    if (status.isPermanentlyDenied) {
+      // The user opted to never again see the permission request dialog for this
+      // app. The only way to change the permission's status now is to let the
+      // user manually enable it in the system settings.
+      print("isPermanentlyDenied");
+      PermissionHandler.openAppSettings();
+      status = await PermissionHandler.Permission.camera.status;
+      // return status.isGranted;
+    }
+    if (status.isDenied) {
+      print("isDenied");
+      // Either the permission was already granted before or the user just granted it.
+      return;
+    }
+    return;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkPermission();
+  }
 
   @override
   Widget build(BuildContext context) {

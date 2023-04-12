@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lsdip_driver/widgets/OrderDetailsTile.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:permission_handler/permission_handler.dart'
     as PermissionHandler;
 
@@ -221,6 +222,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ),
               ]
             : [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 30 / 100,
+                    child: Center(
+                      child: const Text('Navigate'),
+                    ),
+                  ),
+                  onPressed: () {
+                    MapsLauncher.launchQuery(order["customerAddress"]);
+                  },
+                ),
                 ElevatedButton(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 30 / 100,

@@ -350,7 +350,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                                 "orderId"])
                                                                             .update({
                                                                           "orderStatus":
-                                                                              "Back from Wash"
+                                                                              "Pending Delivery"
                                                                         });
 
                                                                         db
