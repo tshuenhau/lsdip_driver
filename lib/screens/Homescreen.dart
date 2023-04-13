@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:lsdip_driver/screens/OrdersScreen.dart';
+import 'package:lsdip_driver/screens/Pickupscreen.dart';
 import 'package:lsdip_driver/screens/VehicleScreen.dart';
 import 'package:lsdip_driver/widgets/OrderScanner.dart';
 import 'package:lsdip_driver/widgets/layout/CustomBottomNavigationBar.dart';
@@ -24,7 +25,8 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-
+  // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String time = "2023-05-06";
   final Location location = Location();
   late double lat = 0;
   late double long = 0;
@@ -214,7 +216,8 @@ class _HomescreenState extends State<Homescreen> {
     // }
     // print(totalDistance);
     List<Widget> _navScreens = [
-      OrdersScreen(lat: lat, long: long, outletId: outletId),
+      OrdersScreen(lat: lat, long: long, outletId: outletId, time: time),
+      Pickupscreen(time: time),
       VehicleScreen(vehicleId: widget.vehicleId)
     ];
 
@@ -247,7 +250,8 @@ class _HomescreenState extends State<Homescreen> {
       ),
       floatingActionButton: Padding(
         padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).size.height * 0 / 100),
+            left: MediaQuery.of(context).size.width * 70 / 100,
+            bottom: MediaQuery.of(context).size.height * 10 / 100),
         child: FloatingActionButton(
           elevation: 4.0,
           child: const Icon(Icons.qr_code),

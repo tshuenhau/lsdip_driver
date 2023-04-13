@@ -15,10 +15,12 @@ class OrdersScreen extends StatefulWidget {
       {required this.outletId,
       required this.lat,
       required this.long,
+      required this.time,
       super.key});
   double lat;
   double long;
   String outletId;
+  String time;
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
@@ -28,10 +30,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   FirebaseFirestore db = FirebaseFirestore.instance;
   // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String time = "2023-05-26";
+  // String time = "2023-05-26";
 
   late Stream<DocumentSnapshot> shiftOrdersStream =
-      db.collection("shift_orders").doc(time).snapshots();
+      db.collection("shift_orders").doc(widget.time).snapshots();
 
   late Stream<QuerySnapshot> ordersStream = db.collection("orders").snapshots();
   late Stream<QuerySnapshot> orderDriverStream =
@@ -166,8 +168,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                       int index) {
                                                 var currentOrder =
                                                     currentOrders[index];
-
-                                                print(currentOrder);
 
                                                 return InkWell(
                                                   onTap: () {

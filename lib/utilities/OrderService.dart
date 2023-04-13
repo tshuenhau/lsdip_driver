@@ -10,8 +10,6 @@ class OrderService {
     for (var order in orders) {
       if (shiftOrder["selected_times"] != null) {
         for (var selectedTime in shiftOrder["selected_times"]) {
-          print("ORDERS: " + selectedTime["orders"].toString()); //This an array
-          print("TIME: " + selectedTime["time"].toString());
           for (var deliveryId in selectedTime["orders"]) {
             for (var orderDriver in orderDrivers) {
               if (orderDriver["driverId"] ==
@@ -58,9 +56,6 @@ class OrderService {
     for (var order in orders) {
       if (shiftOrder["selected_times"] != null) {
         for (var selectedTime in shiftOrder["selected_times"]) {
-          print("ORDERS: " + selectedTime["orders"].toString()); //This an array
-          print("TIME: " + selectedTime["time"].toString());
-
           for (var deliveryId in selectedTime["orders"]) {
             if (deliveryId == order["orderId"] &&
                 order["orderStatus"] == "Pending Delivery" &&
@@ -87,11 +82,25 @@ class OrderService {
       order["startTime"] = startTime;
       order["endTime"] = endTime;
       result.add(order);
-      print("start Time: " + order["startTime"].toString());
     }
 
     result.sort((a, b) => a["startTime"].compareTo(b["startTime"]));
-    print(result);
+    return result;
+  }
+
+  List sortPickupsByTime(List pickups) {
+    List result = [];
+
+    for (var pickup in pickups) {
+      DateTime startTime = DateFormat("HH:mm")
+          .parse(pickup["time"].replaceAll(' ', '').split("-")[0]);
+      DateTime endTime = DateFormat("HH:mm")
+          .parse(pickup["time"].replaceAll(' ', '').split("-")[1]);
+      pickup["startTime"] = startTime;
+      result.add(pickup);
+    }
+
+    result.sort((a, b) => a["startTime"].compareTo(b["startTime"]));
     return result;
   }
 }
