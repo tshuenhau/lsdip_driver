@@ -51,7 +51,39 @@ class OrderService {
       }
     }
 
-    return result;
+    List newResult = [];
+    for (var a in result) {
+      bool test = false;
+      bool secondTest = false;
+
+      for (var b in result) {
+        if (a["customerName"] == b["customerName"] &&
+            a["customerAddress"] == b["customerAddress"] &&
+            a["invoiceNumber"] != b["invoiceNumber"]) {
+          for (var c in newResult) {
+            if (a["customerName"] == c["customerName"] &&
+                a["customerAddress"] == c["customerAddress"]) {
+              secondTest = true;
+            }
+          }
+
+          print("IM JANICE");
+        }
+      }
+      if (test == false && secondTest == false) {
+        newResult.add(a);
+        print(a);
+      }
+    }
+
+    for (int i = 0; i < result.length; i++) {
+      if (i == 0) {
+        continue;
+      }
+
+      print("HYEGG" + i.toString());
+    }
+    return newResult;
   }
 
   List sortOrdersByTime(List orders) {

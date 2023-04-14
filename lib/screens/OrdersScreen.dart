@@ -342,48 +342,48 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                             .pop();
                                                                       },
                                                                     ),
-                                                                    // ElevatedButton(
-                                                                    //   style: ElevatedButton
-                                                                    //       .styleFrom(
-                                                                    //     backgroundColor:
-                                                                    //         Colors.red,
-                                                                    //   ),
-                                                                    //   child:
-                                                                    //       SizedBox(
-                                                                    //     width: MediaQuery.of(context).size.width *
-                                                                    //         30 /
-                                                                    //         100,
-                                                                    //     child:
-                                                                    //         Center(
-                                                                    //       child:
-                                                                    //           const Text('Cancel Delivery'),
-                                                                    //     ),
-                                                                    //   ),
-                                                                    //   onPressed:
-                                                                    //       () {
-                                                                    //     db
-                                                                    //         .collection(
-                                                                    //             "orders")
-                                                                    //         .doc(currentOrder[
-                                                                    //             "orderId"])
-                                                                    //         .update({
-                                                                    //       "orderStatus":
-                                                                    //           "Pending Delivery"
-                                                                    //     });
+                                                                    ElevatedButton(
+                                                                      style: ElevatedButton
+                                                                          .styleFrom(
+                                                                        backgroundColor:
+                                                                            Colors.red,
+                                                                      ),
+                                                                      child:
+                                                                          SizedBox(
+                                                                        width: MediaQuery.of(context).size.width *
+                                                                            30 /
+                                                                            100,
+                                                                        child:
+                                                                            Center(
+                                                                          child:
+                                                                              const Text('Cancel Delivery'),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed:
+                                                                          () {
+                                                                        db
+                                                                            .collection(
+                                                                                "orders")
+                                                                            .doc(currentOrder[
+                                                                                "orderId"])
+                                                                            .update({
+                                                                          "orderStatus":
+                                                                              "Pending Delivery"
+                                                                        });
 
-                                                                    //     db
-                                                                    //         .collection("order_driver")
-                                                                    //         .doc(currentOrder["orderId"])
-                                                                    //         .delete()
-                                                                    //         .then(
-                                                                    //           (doc) => print("Document deleted"),
-                                                                    //           onError: (e) => print("Error updating document $e"),
-                                                                    //         );
+                                                                        db
+                                                                            .collection("order_driver")
+                                                                            .doc(currentOrder["orderId"])
+                                                                            .delete()
+                                                                            .then(
+                                                                              (doc) => print("Document deleted"),
+                                                                              onError: (e) => print("Error updating document $e"),
+                                                                            );
 
-                                                                    //     Navigator.of(context)
-                                                                    //         .pop();
-                                                                    //   },
-                                                                    // ),
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ],

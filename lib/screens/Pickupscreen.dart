@@ -73,7 +73,7 @@ class _PickupscreenState extends State<Pickupscreen> {
                 children: [
                   Card(
                     elevation: 2,
-                    color: Colors.teal.shade100,
+                    color: Colors.blue.shade400,
                     child: Container(
                         height: MediaQuery.of(context).size.height * 5 / 100,
                         child: Container(
@@ -129,7 +129,7 @@ class _PickupscreenState extends State<Pickupscreen> {
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
                                             Container(
-                                              color: Colors.blue.shade400,
+                                              color: Colors.teal.shade100,
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height *
