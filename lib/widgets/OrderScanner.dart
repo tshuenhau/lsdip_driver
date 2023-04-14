@@ -9,8 +9,8 @@ import 'package:permission_handler/permission_handler.dart'
     as PermissionHandler;
 
 class OrderScanner extends StatefulWidget {
-  OrderScanner({super.key});
-
+  OrderScanner({required this.time, super.key});
+  String time;
   @override
   State<OrderScanner> createState() => _OrderScannerState();
 }
@@ -97,6 +97,7 @@ class _OrderScannerState extends State<OrderScanner> {
             context,
             MaterialPageRoute(
                 builder: (context) => OrderDetailsScreen(
+                    time: widget.time,
                     orderId: barcodes[0].rawValue.toString())),
           );
           // for (final barcode in barcodes) {

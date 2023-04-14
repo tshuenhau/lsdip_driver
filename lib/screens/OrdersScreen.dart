@@ -80,6 +80,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       var shift_orders;
 
                       if (snapshot.connectionState == ConnectionState.active) {
+                        if (!snapshot.data!.exists) {
+                          return Center(
+                              child: Container(
+                                  child: Text("No Orders For Today")));
+                        }
                         var data = snapshot.data as DocumentSnapshot;
                         shift_orders = data;
                         List processedOrders = OrderService()
@@ -172,6 +177,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                 return InkWell(
                                                   onTap: () {
                                                     showModalBottomSheet<void>(
+                                                      isScrollControlled: true,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
@@ -191,7 +197,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                         context)
                                                                     .size
                                                                     .height *
-                                                                80 /
+                                                                75 /
                                                                 100,
                                                             child: Column(
                                                               mainAxisAlignment:
@@ -244,6 +250,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                         "Order ID",
                                                                     value: (currentOrder[
                                                                         "orderId"])),
+                                                                OrderDetailsTile(
+                                                                    title:
+                                                                        "Customer Name: ",
+                                                                    value: currentOrder[
+                                                                            "customerName"] ??
+                                                                        ''),
+                                                                OrderDetailsTile(
+                                                                    title:
+                                                                        "Customer Number: ",
+                                                                    value: currentOrder[
+                                                                            "customerNumber"] ??
+                                                                        ''),
                                                                 OrderDetailsTile(
                                                                     title:
                                                                         "Time",
@@ -324,48 +342,48 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                             .pop();
                                                                       },
                                                                     ),
-                                                                    ElevatedButton(
-                                                                      style: ElevatedButton
-                                                                          .styleFrom(
-                                                                        backgroundColor:
-                                                                            Colors.red,
-                                                                      ),
-                                                                      child:
-                                                                          SizedBox(
-                                                                        width: MediaQuery.of(context).size.width *
-                                                                            30 /
-                                                                            100,
-                                                                        child:
-                                                                            Center(
-                                                                          child:
-                                                                              const Text('Cancel Delivery'),
-                                                                        ),
-                                                                      ),
-                                                                      onPressed:
-                                                                          () {
-                                                                        db
-                                                                            .collection(
-                                                                                "orders")
-                                                                            .doc(currentOrder[
-                                                                                "orderId"])
-                                                                            .update({
-                                                                          "orderStatus":
-                                                                              "Pending Delivery"
-                                                                        });
+                                                                    // ElevatedButton(
+                                                                    //   style: ElevatedButton
+                                                                    //       .styleFrom(
+                                                                    //     backgroundColor:
+                                                                    //         Colors.red,
+                                                                    //   ),
+                                                                    //   child:
+                                                                    //       SizedBox(
+                                                                    //     width: MediaQuery.of(context).size.width *
+                                                                    //         30 /
+                                                                    //         100,
+                                                                    //     child:
+                                                                    //         Center(
+                                                                    //       child:
+                                                                    //           const Text('Cancel Delivery'),
+                                                                    //     ),
+                                                                    //   ),
+                                                                    //   onPressed:
+                                                                    //       () {
+                                                                    //     db
+                                                                    //         .collection(
+                                                                    //             "orders")
+                                                                    //         .doc(currentOrder[
+                                                                    //             "orderId"])
+                                                                    //         .update({
+                                                                    //       "orderStatus":
+                                                                    //           "Pending Delivery"
+                                                                    //     });
 
-                                                                        db
-                                                                            .collection("order_driver")
-                                                                            .doc(currentOrder["orderId"])
-                                                                            .delete()
-                                                                            .then(
-                                                                              (doc) => print("Document deleted"),
-                                                                              onError: (e) => print("Error updating document $e"),
-                                                                            );
+                                                                    //     db
+                                                                    //         .collection("order_driver")
+                                                                    //         .doc(currentOrder["orderId"])
+                                                                    //         .delete()
+                                                                    //         .then(
+                                                                    //           (doc) => print("Document deleted"),
+                                                                    //           onError: (e) => print("Error updating document $e"),
+                                                                    //         );
 
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                      },
-                                                                    ),
+                                                                    //     Navigator.of(context)
+                                                                    //         .pop();
+                                                                    //   },
+                                                                    // ),
                                                                   ],
                                                                 ),
                                                               ],
@@ -454,6 +472,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                 return InkWell(
                                                   onTap: () {
                                                     showModalBottomSheet<void>(
+                                                      isScrollControlled: true,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
@@ -473,7 +492,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                         context)
                                                                     .size
                                                                     .height *
-                                                                80 /
+                                                                60 /
                                                                 100,
                                                             child: Column(
                                                               mainAxisAlignment:
@@ -528,6 +547,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                         "Order ID",
                                                                     value: (order[
                                                                         "orderId"])),
+                                                                OrderDetailsTile(
+                                                                    title:
+                                                                        "Customer Name: ",
+                                                                    value: order[
+                                                                            "customerName"] ??
+                                                                        ''),
+                                                                OrderDetailsTile(
+                                                                    title:
+                                                                        "Customer Number: ",
+                                                                    value: order[
+                                                                            "customerNumber"] ??
+                                                                        ''),
                                                                 OrderDetailsTile(
                                                                     title:
                                                                         "Time",

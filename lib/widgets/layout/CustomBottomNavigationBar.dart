@@ -55,12 +55,12 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                 label: 'Orders',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.inventory),
-                label: 'Pickup',
+                icon: Icon(Icons.local_shipping),
+                label: 'Pickups',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.local_shipping),
-                label: 'Vehicle',
+                icon: Icon(Icons.account_circle),
+                label: 'Account',
               ),
               // BottomNavigationBarItem(
               //   icon: Icon(Icons.emoji_events),

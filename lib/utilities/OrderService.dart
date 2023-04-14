@@ -3,8 +3,6 @@ import 'package:intl/intl.dart';
 
 class OrderService {
   List processCurrentOrders(List orders, var orderDrivers, var shiftOrder) {
-    //TODO: Need to sort by time
-
     List result = [];
 
     for (var order in orders) {
@@ -20,28 +18,12 @@ class OrderService {
                 order["timing"] = selectedTime["time"];
 
                 result.add(order);
-                // print("YESSSSSSSSSSSSSSSSSS");
               }
             }
           }
         }
       }
     }
-    // for (var order in orders) {
-    //   for (var shiftOrder in shiftOrders) {
-    //     for (var orderDriver in orderDrivers) {
-    //       if (orderDriver["driverId"] ==
-    //               FirebaseAuth.instance.currentUser!.uid &&
-    //           order["orderStatus"] == "Out for Delivery" &&
-    //           shiftOrder["id"] == order["orderId"] &&
-    //           orderDriver["orderId"] == order["orderId"]) {
-    //         order["timing"] = shiftOrder["timing"];
-    //         result.add(order);
-    //         // print("YESSSSSSSSSSSSSSSSSS");
-    //       }
-    //     }
-    //   }
-    // }
 
     return result;
   }
@@ -68,6 +50,7 @@ class OrderService {
         }
       }
     }
+
     return result;
   }
 

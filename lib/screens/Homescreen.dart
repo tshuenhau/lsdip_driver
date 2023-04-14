@@ -26,7 +26,7 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   // String time = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String time = "2023-05-06";
+  String time = "2023-04-15";
   final Location location = Location();
   late double lat = 0;
   late double long = 0;
@@ -129,7 +129,7 @@ class _HomescreenState extends State<Homescreen> {
       return;
     }
     location.changeSettings(
-        accuracy: LocationAccuracy.high, interval: 3000, distanceFilter: 5);
+        accuracy: LocationAccuracy.high, interval: 1000, distanceFilter: 5);
     LocationData locationData = await location.getLocation();
 
     prevLocation = GeoPoint(locationData.latitude!, locationData.longitude!);
@@ -141,17 +141,16 @@ class _HomescreenState extends State<Homescreen> {
     super.initState();
     _pageController = PageController();
     initializeLocation();
-    var tempOutlets;
 
     db.collection("outlet").get().then(
       (querySnapshot) {
         print("Successfully completed");
-        var outlets = querySnapshot.docs.map((DocumentSnapshot document) {
+        var tempOutlets = querySnapshot.docs.map((DocumentSnapshot document) {
           Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
           data["outletId"] = document.id;
           return data;
         }).toList();
-        tempOutlets = outlets;
+        outlets = tempOutlets;
       },
       onError: (e) => print("Error completing: $e"),
     );
@@ -159,7 +158,6 @@ class _HomescreenState extends State<Homescreen> {
     location.onLocationChanged.listen((event) {
       if (mounted) {
         setState(() {
-          outlets = tempOutlets;
           lat = event.latitude!;
           long = event.longitude!;
           prevLocation = currLocation;
@@ -218,51 +216,62 @@ class _HomescreenState extends State<Homescreen> {
     List<Widget> _navScreens = [
       OrdersScreen(lat: lat, long: long, outletId: outletId, time: time),
       Pickupscreen(time: time),
-      VehicleScreen(vehicleId: widget.vehicleId)
+      VehicleScreen(vehicleId: widget.vehicleId, date: time)
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title:
-            Text(outletName == "" ? "Please select an outlet -->" : outletName),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (_) => SimpleDialog(
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0))),
-                        contentPadding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 1 / 100,
-                            bottom:
-                                MediaQuery.of(context).size.height * 2 / 100),
-                        title: Text('Select Outlet'),
-                        children: buildOutletOptions(context)));
-                // setState(() {
-                //   outletId = outlets.isNotEmpty ? outlets[1]["outletId"] : "";
-                // });
-              },
-              icon: Icon(Icons.filter_list))
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.width * 70 / 100,
-            bottom: MediaQuery.of(context).size.height * 10 / 100),
-        child: FloatingActionButton(
-          elevation: 4.0,
-          child: const Icon(Icons.qr_code),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => OrderScanner()),
-            );
-          },
-        ),
-      ),
+      appBar: _selectedIndex == 0
+          ? AppBar(
+              title: Text(outletName == ""
+                  ? "Orders ( " + "Please select an outlet --> )"
+                  : "Orders (" + outletName + ")"),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => SimpleDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0))),
+                              contentPadding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height *
+                                      1 /
+                                      100,
+                                  bottom: MediaQuery.of(context).size.height *
+                                      2 /
+                                      100),
+                              title: Text('Select Outlet'),
+                              children: buildOutletOptions(context)));
+                      // setState(() {
+                      //   outletId = outlets.isNotEmpty ? outlets[1]["outletId"] : "";
+                      // });
+                    },
+                    icon: Icon(Icons.filter_list))
+              ],
+            )
+          : _selectedIndex == 1
+              ? AppBar(title: Text("Pickups"))
+              : AppBar(title: Text("Account")),
+      floatingActionButton: _selectedIndex != 0
+          ? null
+          : Padding(
+              padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 70 / 100,
+                  bottom: MediaQuery.of(context).size.height * 10 / 100),
+              child: FloatingActionButton(
+                elevation: 4.0,
+                child: const Icon(Icons.qr_code),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => OrderScanner(time: time)),
+                  );
+                },
+              ),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: CustomPageView(
         navScreens: _navScreens,

@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lsdip_driver/widgets/OrderDetailsTile.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:permission_handler/permission_handler.dart'
     as PermissionHandler;
 
 class OrderDetailsScreen extends StatefulWidget {
-  OrderDetailsScreen({required this.orderId, super.key});
+  OrderDetailsScreen({required this.orderId, required this.time, super.key});
 
   String orderId;
-
+  String time;
   @override
   State<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
 }
@@ -20,13 +21,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String time = "2023-05-26";
+    print("date" + widget.time);
+    // String time = "2023-05-26";
 
     final orderRef = db.collection("orders").doc(widget.orderId);
     final orderDriverRef = db.collection("order_driver").doc(widget.orderId);
-
     final shiftOrdersRef = db.collection("shift_orders");
-
     var shift_orders;
 
     // final order_driverRef = db.collection("order_driver").doc(widget.orderId);
@@ -74,7 +74,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 // print("Order: " + order.toString());
                 for (var shiftOrder in shiftOrders) {
                   // print(shiftOrder["date"].toString());
-                  if (shiftOrder["selected_times"] != null) {
+                  if (shiftOrder["selected_times"] != null &&
+                      shiftOrder["selected_times"].length > 0) {
                     for (var selectedTime in shiftOrder["selected_times"]) {
                       print("ORDERS: " +
                           selectedTime["orders"].toString()); //This an array
@@ -82,6 +83,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
                       for (var deliveryId in selectedTime["orders"]) {
                         if (deliveryId == order["orderId"]) {
+                          print("Selected Time: " + selectedTime["time"]);
                           order["timing"] = selectedTime["time"];
                           order["deliveryDate"] = shiftOrder["date"];
                         }
@@ -89,6 +91,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     }
                   }
                 }
+
+                // print("nweiugthiwerg" + order["time"]);
+
                 return FutureBuilder<DocumentSnapshot>(
                     future: orderDriverRef.get(),
                     builder: (_, snapshot) {
@@ -101,6 +106,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       final orderDriver =
                           snapshot.data!.data() as Map<String, dynamic>?;
 
+                      // print("DELIVERY DATE: " +
+                      //     order["deliveryDate"].seconds.toString());
+
+                      // print(DateTime.fromMillisecondsSinceEpoch(
+                      //     order["deliveryDate"].seconds * 1000));
+
+                      String date = "";
+                      if (order["deliveryDate"] is String) {
+                        date = order["deliveryDate"];
+                      } else {
+                        date = DateFormat('yyyy-MM-dd').format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                order["deliveryDate"].seconds * 1000));
+                      }
                       return SizedBox(
                         height: MediaQuery.of(context).size.height,
                         child: Column(
@@ -139,11 +158,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                       title: "Order ID: ",
                                       value: order["orderId"] ?? ''),
                                   OrderDetailsTile(
+                                      title: "Customer Name: ",
+                                      value: order["customerName"] ?? ''),
+                                  OrderDetailsTile(
+                                      title: "Customer Number: ",
+                                      value: order["customerNumber"] ?? ''),
+                                  OrderDetailsTile(
                                       title: "Address: ",
                                       value: order["customerAddress"] ?? ''),
                                   OrderDetailsTile(
-                                      title: "Date: ",
-                                      value: order["deliveryDate"] ?? ''),
+                                      title: "Date: ", value: date),
+
+                                  //! this is where the error is
                                   OrderDetailsTile(
                                       title: "Time: ",
                                       value: order["timing"] ?? ''),
@@ -154,8 +180,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               height:
                                   MediaQuery.of(context).size.height * 20 / 100,
                               child: Column(
-                                children:
-                                    buildButtons(orderDriver, context, order),
+                                children: buildButtons(
+                                    orderDriver, context, order, date),
                               ),
                             ),
                           ],
@@ -169,7 +195,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   List<Widget> buildButtons(Map<String, dynamic>? orderDriver,
-      BuildContext context, Map<String, dynamic> order) {
+      BuildContext context, Map<String, dynamic> order, String date) {
+    bool canSelect = false;
+    if (order["timing"] != null && date == widget.time) {
+      canSelect = true;
+    }
+    // print("TIMING: " + order["timing"]!);
+
     return orderDriver != null
         ? ((orderDriver["driverId"] != FirebaseAuth.instance.currentUser!.uid)
             ? [
@@ -213,7 +245,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 20 / 100,
                     child: Center(
-                      child: const Text('Cancel'),
+                      child: const Text('Back'),
                     ),
                   ),
                   onPressed: () {
@@ -288,32 +320,44 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ),
               ])
         : [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-              ),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 20 / 100,
-                child: Center(
-                  child: Text('Select order',
-                      style: TextStyle(color: Colors.white)),
-                ),
-              ),
-              onPressed: () {
-                db
-                    .collection("orders")
-                    .doc(order["orderId"])
-                    .update({"orderStatus": "Out for Delivery"});
-                db.collection("order_driver").doc(order["orderId"]).set({
-                  "orderId": order["orderId"],
-                  "driverId": FirebaseAuth.instance.currentUser!.uid,
-                  "status":
-                      0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                }).onError((e, _) => print("Error writing document: $e"));
+            canSelect
+                ? ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 20 / 100,
+                      child: Center(
+                        child: Text('Select order',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                    onPressed: () {
+                      db
+                          .collection("orders")
+                          .doc(order["orderId"])
+                          .update({"orderStatus": "Out for Delivery"});
+                      db.collection("order_driver").doc(order["orderId"]).set({
+                        "orderId": order["orderId"],
+                        "driverId": FirebaseAuth.instance.currentUser!.uid,
+                        "status":
+                            0 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                      }).onError((e, _) => print("Error writing document: $e"));
 
-                Navigator.of(context).pop();
-              },
-            ),
+                      Navigator.of(context).pop();
+                    },
+                  )
+                : date != widget.time
+                    ? Container(
+                        height: MediaQuery.of(context).size.height * 5 / 100,
+                        child: Center(
+                          child: Text("Not scheduled to be delivered today",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                      )
+                    : Container(),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -321,7 +365,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 20 / 100,
                 child: Center(
-                  child: const Text('Cancel'),
+                  child: const Text('Back'),
                 ),
               ),
               onPressed: () {

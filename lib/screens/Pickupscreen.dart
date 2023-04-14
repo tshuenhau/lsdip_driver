@@ -73,7 +73,7 @@ class _PickupscreenState extends State<Pickupscreen> {
                 children: [
                   Card(
                     elevation: 2,
-                    color: Colors.blue.shade100,
+                    color: Colors.teal.shade100,
                     child: Container(
                         height: MediaQuery.of(context).size.height * 5 / 100,
                         child: Container(
@@ -110,6 +110,7 @@ class _PickupscreenState extends State<Pickupscreen> {
                             return InkWell(
                               onTap: () {
                                 showModalBottomSheet<void>(
+                                  isScrollControlled: true,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
@@ -120,7 +121,7 @@ class _PickupscreenState extends State<Pickupscreen> {
                                       child: SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
-                                                80 /
+                                                60 /
                                                 100,
                                         child: Column(
                                           mainAxisAlignment:
@@ -162,6 +163,22 @@ class _PickupscreenState extends State<Pickupscreen> {
                                                         ? "No Address"
                                                         : currentPickup[
                                                             "address"])),
+                                            OrderDetailsTile(
+                                                title: "Name",
+                                                value: (currentPickup["name"] ==
+                                                        ""
+                                                    ? "No Name"
+                                                    : currentPickup["name"])),
+                                            OrderDetailsTile(
+                                                title: "Number",
+                                                value: (currentPickup[
+                                                            "number"] ==
+                                                        ""
+                                                    ? "No Number"
+                                                    : currentPickup["number"])),
+                                            OrderDetailsTile(
+                                                title: "Time",
+                                                value: (currentPickup["time"])),
                                             SizedBox(
                                                 height: MediaQuery.of(context)
                                                         .size
@@ -367,6 +384,22 @@ class _PickupscreenState extends State<Pickupscreen> {
                                                         ? "No Address"
                                                         : currentPickup[
                                                             "address"])),
+                                            OrderDetailsTile(
+                                                title: "Name",
+                                                value: (currentPickup["name"] ==
+                                                        ""
+                                                    ? "No Name"
+                                                    : currentPickup["name"])),
+                                            OrderDetailsTile(
+                                                title: "Number",
+                                                value: (currentPickup[
+                                                            "number"] ==
+                                                        ""
+                                                    ? "No Number"
+                                                    : currentPickup["number"])),
+                                            OrderDetailsTile(
+                                                title: "Time",
+                                                value: (currentPickup["time"])),
                                             SizedBox(
                                                 height: MediaQuery.of(context)
                                                         .size
@@ -375,30 +408,6 @@ class _PickupscreenState extends State<Pickupscreen> {
                                                     100),
                                             Column(
                                               children: [
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                  ),
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            30 /
-                                                            100,
-                                                    child: Center(
-                                                      child: const Text(
-                                                          'Navigate'),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    MapsLauncher.launchQuery(
-                                                        currentPickup[
-                                                            "address"]);
-                                                  },
-                                                ),
                                                 ElevatedButton(
                                                   child: SizedBox(
                                                     width:
@@ -434,27 +443,6 @@ class _PickupscreenState extends State<Pickupscreen> {
                                                               completedPickups
                                                     });
 
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            30 /
-                                                            100,
-                                                    child: Center(
-                                                      child: const Text(
-                                                          'Cancel Delivery'),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
                                                 ),
