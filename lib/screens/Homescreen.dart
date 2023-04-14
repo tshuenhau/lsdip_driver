@@ -10,11 +10,11 @@ import 'package:lsdip_driver/widgets/OrderScanner.dart';
 import 'package:lsdip_driver/widgets/layout/CustomBottomNavigationBar.dart';
 import 'package:lsdip_driver/widgets/layout/CustomPageView.dart';
 import 'dart:math' show cos, sqrt, asin;
-
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart'
     as PermissionHandler;
 
+//LybZd2SlBgqAXMte9XXk
 class Homescreen extends StatefulWidget {
   Homescreen({required this.vehicleId, super.key});
   String vehicleId;
@@ -222,9 +222,8 @@ class _HomescreenState extends State<Homescreen> {
     return Scaffold(
       appBar: _selectedIndex == 0
           ? AppBar(
-              title: Text(outletName == ""
-                  ? "Orders ( " + "Please select an outlet --> )"
-                  : "Orders (" + outletName + ")"),
+              title: Text(
+                  outletName == "" ? "Orders" : "Orders (" + outletName + ")"),
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(

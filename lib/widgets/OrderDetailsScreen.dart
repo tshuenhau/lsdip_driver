@@ -197,8 +197,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   List<Widget> buildButtons(Map<String, dynamic>? orderDriver,
       BuildContext context, Map<String, dynamic> order, String date) {
     bool canSelect = false;
+    bool canDeliver = false;
     if (order["timing"] != null && date == widget.time) {
+      print(order.toString() + "EBUGiu");
       canSelect = true;
+    }
+
+    if (order["orderStatus"] == "Out for Delivery") {
+      canDeliver = true;
     }
     // print("TIMING: " + order["timing"]!);
 
@@ -253,72 +259,88 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   },
                 ),
               ]
-            : [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 30 / 100,
-                    child: Center(
-                      child: const Text('Navigate'),
+            : !canDeliver
+                ? [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 5 / 100,
+                      child: Center(
+                        child: Text("Has already been delivered.",
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold)),
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    MapsLauncher.launchQuery(order["customerAddress"]);
-                  },
-                ),
-                ElevatedButton(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 30 / 100,
-                    child: Center(
-                      child: const Text('Delivered'),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 30 / 100,
+                        child: Center(
+                          child: const Text('Back'),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                  ),
-                  onPressed: () {
-                    db
-                        .collection("orders")
-                        .doc(order["orderId"])
-                        .update({"orderStatus": "Delivered"});
-                    db.collection("order_driver").doc(order["orderId"]).set({
-                      "orderId": order["orderId"],
-                      "driverId": FirebaseAuth.instance.currentUser!.uid,
-                      "status":
-                          1 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
-                    }).onError((e, _) => print("Error writing document: $e"));
-
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 30 / 100,
-                    child: Center(
-                      child: const Text('Back'),
+                  ]
+                : [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 30 / 100,
+                        child: Center(
+                          child: const Text('Navigate'),
+                        ),
+                      ),
+                      onPressed: () {
+                        MapsLauncher.launchQuery(order["customerAddress"]);
+                      },
                     ),
-                  ),
-                  onPressed: () {
-                    // db
-                    //     .collection("orders")
-                    //     .doc(order["orderId"])
-                    //     .update({"orderStatus": "Pending Delivery"});
+                    ElevatedButton(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 30 / 100,
+                        child: Center(
+                          child: const Text('Confirm Delivery'),
+                        ),
+                      ),
+                      onPressed: () {
+                        db
+                            .collection("orders")
+                            .doc(order["orderId"])
+                            .update({"orderStatus": "Delivered"});
+                        db
+                            .collection("order_driver")
+                            .doc(order["orderId"])
+                            .set({
+                          "orderId": order["orderId"],
+                          "driverId": FirebaseAuth.instance.currentUser!.uid,
+                          "status":
+                              1 //! 0 = being delivered , 1 = delivered, -1 = failed to deliver
+                        }).onError(
+                                (e, _) => print("Error writing document: $e"));
 
-                    // db
-                    //     .collection("order_driver")
-                    //     .doc(order["orderId"])
-                    //     .delete()
-                    //     .then(
-                    //       (doc) => print("Document deleted"),
-                    //       onError: (e) => print("Error updating document $e"),
-                    //     );
-
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ])
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 30 / 100,
+                        child: Center(
+                          child: const Text('Back'),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ])
         : [
             canSelect
                 ? ElevatedButton(
